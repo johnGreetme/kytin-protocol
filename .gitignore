@@ -1,0 +1,28 @@
+# Build outputs
+sentinel/build/
+bridge/dist/
+bridge/node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+Makefile
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
