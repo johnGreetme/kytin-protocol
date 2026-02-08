@@ -48,6 +48,11 @@ static std::mutex g_state_mutex;
 static TPMInterface g_tpm;
 static std::atomic<bool> g_running{true};
 
+// Soul Transfer: When true, this Sentinel is "dead" and cannot sign
+static std::atomic<bool> g_is_dead{false};
+static std::string g_death_signature; // Last Will signature
+static std::string g_child_key;       // Successor's public key
+
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
@@ -83,6 +88,29 @@ static HeartbeatMode parse_heartbeat_mode(const std::string &mode_str) {
 }
 
 // ============================================================================
+// DEATH CHECK HELPER
+// ============================================================================
+
+/**
+ * Check if this Sentinel is dead and return 410 GONE if so
+ */
+bool check_if_dead(httplib::Response &res) {
+  if (g_is_dead.load()) {
+    res.status = 410; // Gone
+    res.set_content(
+        json{{"error", "AGENT_DEAD"},
+             {"message",
+              "This Sentinel has executed Soul Transfer. Authority migrated."},
+             {"child_key", g_child_key},
+             {"last_will_signature", g_death_signature}}
+            .dump(),
+        "application/json");
+    return true;
+  }
+  return false;
+}
+
+// ============================================================================
 // ENDPOINT HANDLERS
 // ============================================================================
 
@@ -96,9 +124,14 @@ static HeartbeatMode parse_heartbeat_mode(const std::string &mode_str) {
  * 3. Deducts Resin based on mode
  *
  * Returns 402 Payment Required if tank is empty.
+ * Returns 410 Gone if Soul Transfer has occurred.
  */
 void handle_heartbeat(const httplib::Request &req, httplib::Response &res) {
   std::lock_guard<std::mutex> lock(g_state_mutex);
+
+  // Check if dead (Soul Transfer executed)
+  if (check_if_dead(res))
+    return;
 
   // Parse request body
   json request_json;
@@ -198,9 +231,14 @@ void handle_heartbeat(const httplib::Request &req, httplib::Response &res) {
  *
  * Policy-checked transaction signing for Solana.
  * Enforces daily limits and per-transaction caps.
+ * Returns 410 Gone if Soul Transfer has occurred.
  */
 void handle_sign(const httplib::Request &req, httplib::Response &res) {
   std::lock_guard<std::mutex> lock(g_state_mutex);
+
+  // Check if dead (Soul Transfer executed)
+  if (check_if_dead(res))
+    return;
 
   // Parse request
   json request_json;
@@ -287,6 +325,143 @@ void handle_sign(const httplib::Request &req, httplib::Response &res) {
            {"algorithm", signature->algorithm},
            {"amount_sol", amount_sol},
            {"daily_remaining_sol", DAILY_LIMIT_SOL - g_daily_spent_sol}}
+          .dump(),
+      "application/json");
+}
+
+/**
+ * POST /migrate
+ * Input: { "child_key": "hex_pubkey", "auth_token": "..." }
+ *
+ * SOUL TRANSFER PROTOCOL - Death Certificate Signing
+ * This is IRREVERSIBLE. After execution:
+ * 1. Signs "MIGRATE_AUTHORITY_TO:<child_key>"
+ * 2. Sets is_dead = true
+ * 3. All future /sign and /heartbeat calls return 410 GONE
+ *
+ * Returns the "Last Will" signature for on-chain migration.
+ */
+void handle_migrate(const httplib::Request &req, httplib::Response &res) {
+  std::lock_guard<std::mutex> lock(g_state_mutex);
+
+  // If already dead, return error
+  if (g_is_dead.load()) {
+    res.status = 410;
+    res.set_content(json{{"error", "ALREADY_DEAD"},
+                         {"message", "Soul Transfer already executed."},
+                         {"child_key", g_child_key},
+                         {"last_will_signature", g_death_signature}}
+                        .dump(),
+                    "application/json");
+    return;
+  }
+
+  // Parse request
+  json request_json;
+  std::string child_key;
+  std::string auth_token;
+
+  try {
+    request_json = json::parse(req.body);
+    child_key = request_json.value("child_key", "");
+    auth_token = request_json.value("auth_token", "");
+  } catch (const json::exception &e) {
+    res.status = 400;
+    res.set_content(
+        json{{"error", "INVALID_JSON"}, {"message", e.what()}}.dump(),
+        "application/json");
+    return;
+  }
+
+  // Validate child_key
+  if (child_key.empty()) {
+    res.status = 400;
+    res.set_content(
+        json{{"error", "MISSING_CHILD_KEY"},
+             {"message", "child_key is required for Soul Transfer."}}
+            .dump(),
+        "application/json");
+    return;
+  }
+
+  // Check TPM availability
+  if (!g_tpm.is_available()) {
+    res.status = 403;
+    res.set_content(json{{"error", "TPM_UNAVAILABLE"},
+                         {"message", "Hardware root of trust not initialized."}}
+                        .dump(),
+                    "application/json");
+    return;
+  }
+
+  // Construct migration payload
+  std::string migrate_payload = "MIGRATE_AUTHORITY_TO:" + child_key;
+  std::vector<uint8_t> payload(migrate_payload.begin(), migrate_payload.end());
+
+  // Sign the migration payload - THIS IS THE "LAST WILL"
+  auto signature = g_tpm.sign(payload);
+
+  if (!signature) {
+    res.status = 500;
+    res.set_content(json{{"error", "SIGNING_FAILED"},
+                         {"message", "TPM signing operation failed."}}
+                        .dump(),
+                    "application/json");
+    return;
+  }
+
+  // Build signature string (base64)
+  std::string sig_b64;
+  {
+    static const char *b64 =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    int val = 0, valb = -6;
+    for (uint8_t c : signature->data) {
+      val = (val << 8) + c;
+      valb += 8;
+      while (valb >= 0) {
+        sig_b64.push_back(b64[(val >> valb) & 0x3F]);
+        valb -= 6;
+      }
+    }
+    if (valb > -6)
+      sig_b64.push_back(b64[((val << 8) >> (valb + 8)) & 0x3F]);
+    while (sig_b64.size() % 4)
+      sig_b64.push_back('=');
+  }
+
+  // ***** CRITICAL: SET IS_DEAD FLAG *****
+  // This is IRREVERSIBLE - the Sentinel is now dead
+  g_is_dead.store(true);
+  g_death_signature = sig_b64;
+  g_child_key = child_key;
+
+  std::cout << "\n";
+  std::cout
+      << "╔══════════════════════════════════════════════════════════════╗\n";
+  std::cout
+      << "║  ⚰️  SOUL TRANSFER EXECUTED - THIS SENTINEL IS NOW DEAD  ⚰️  ║\n";
+  std::cout
+      << "╠══════════════════════════════════════════════════════════════╣\n";
+  std::cout << "║  Authority transferred to: " << child_key.substr(0, 32)
+            << "...  ║\n";
+  std::cout
+      << "║  All future signing requests will fail with 410 GONE        ║\n";
+  std::cout
+      << "╚══════════════════════════════════════════════════════════════╝\n";
+  std::cout << std::endl;
+
+  // Success response - the "Death Certificate"
+  res.status = 200;
+  res.set_content(
+      json{{"status", "soul_transferred"},
+           {"last_will_signature", sig_b64},
+           {"parent_pubkey", g_tpm.get_hardware_id()},
+           {"child_key", child_key},
+           {"payload", migrate_payload},
+           {"algorithm", signature->algorithm},
+           {"message", "This Sentinel is now dead. Broadcast "
+                       "last_will_signature to Solana to complete migration."}}
           .dump(),
       "application/json");
 }
@@ -386,6 +561,7 @@ int main(int argc, char *argv[]) {
   // Register endpoints
   svr.Post("/heartbeat", kytin::handle_heartbeat);
   svr.Post("/sign", kytin::handle_sign);
+  svr.Post("/migrate", kytin::handle_migrate); // Soul Transfer
   svr.Get("/status", kytin::handle_status);
 
   // Add CORS headers for local development
@@ -394,7 +570,8 @@ int main(int argc, char *argv[]) {
 
   std::cout << "[KYTIN] Sentinel listening on http://" << kytin::LISTEN_HOST
             << ":" << kytin::LISTEN_PORT << std::endl;
-  std::cout << "[KYTIN] Endpoints: POST /heartbeat, POST /sign, GET /status"
+  std::cout << "[KYTIN] Endpoints: POST /heartbeat, POST /sign, POST /migrate, "
+               "GET /status"
             << std::endl;
   std::cout << std::endl;
 

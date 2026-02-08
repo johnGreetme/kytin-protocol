@@ -1,15 +1,17 @@
 {
-  "name": "kytin-init",
+  "name": "kytin-cli",
   "version": "1.0.0",
-  "description": "CLI installer for Kytin Protocol - Hardware Root of Trust for AI Agents",
+  "description": "CLI tools for Kytin Protocol - Hardware Root of Trust for AI Agents",
   "bin": {
-    "kytin-init": "./dist/kytin-init.js"
+    "kytin-init": "./dist/kytin-init.js",
+    "kytin-migrate": "./dist/migrate.js"
   },
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node kytin-init.ts"
+    "dev:init": "ts-node kytin-init.ts",
+    "dev:migrate": "ts-node src/migrate.ts"
   },
-  "keywords": ["kytin", "tpm", "hardware-security", "ai-agents", "installer"],
+  "keywords": ["kytin", "tpm", "hardware-security", "ai-agents", "soul-transfer", "migration"],
   "author": "Kytin Protocol",
   "license": "MIT",
   "devDependencies": {
@@ -18,3 +20,4 @@
     "typescript": "^5.0.0"
   }
 }
+
