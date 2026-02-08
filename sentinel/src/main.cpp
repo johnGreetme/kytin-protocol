@@ -564,9 +564,21 @@ int main(int argc, char *argv[]) {
   svr.Post("/migrate", kytin::handle_migrate); // Soul Transfer
   svr.Get("/status", kytin::handle_status);
 
-  // Add CORS headers for local development
-  svr.set_default_headers(
-      {{"Access-Control-Allow-Origin", "*"}, {"X-Kytin-Version", "1.0.0"}});
+  // CORS: Handle preflight OPTIONS requests for browser access
+  svr.set_pre_routing_handler(
+      [](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type");
+        res.set_header("X-Kytin-Version", "1.0.0");
+
+        // Handle OPTIONS preflight requests
+        if (req.method == "OPTIONS") {
+          res.status = 200;
+          return httplib::Server::HandlerResponse::Handled;
+        }
+        return httplib::Server::HandlerResponse::Unhandled;
+      });
 
   std::cout << "[KYTIN] Sentinel listening on http://" << kytin::LISTEN_HOST
             << ":" << kytin::LISTEN_PORT << std::endl;
