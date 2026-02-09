@@ -192,7 +192,7 @@ curl -X POST http://localhost:18789/migrate \
 
 ## 🔗 Links
 
-- **Clawhub Registry:** [clawhub.kytin.io](https://clawhub.kytin.io)
+- **Clawhub Registry:** [clawhub.kytin.io](./bridge/SKILL.md)
 - **Mission Control:** [dashboard-greetme.vercel.app](https://dashboard-greetme.vercel.app)
 
 ---
