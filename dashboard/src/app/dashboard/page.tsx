@@ -12,7 +12,7 @@ const MOCK_STATUS = {
   resin_remaining: 18450,
   resin_total: 22000,
   uptime_score: 985,
-  heartbeat_mode: 'ECO' as const,
+  heartbeat_mode: 'ECO' as 'ECO' | 'TURBO',
   daily_limit_sol: 1.0,
   spent_today_sol: 0.23,
 };
