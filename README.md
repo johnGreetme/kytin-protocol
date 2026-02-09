@@ -1,4 +1,5 @@
 # 🦞 The Kytin Protocol
+**The "Iron Shell" for OpenClaw Agents.**
 
 <div align="center">
   <img src="docs/assets/dashboard-hero.png" alt="Kytin Mission Control" width="100%" />
@@ -10,15 +11,37 @@
 
 ---
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Hardware: TPM 2.0](https://img.shields.io/badge/Hardware-TPM%202.0-blue)](https://trustedcomputinggroup.org/)
-[![Network: Solana](https://img.shields.io/badge/Network-Solana-purple)](https://solana.com/)
+[![Spec](https://img.shields.io/badge/Spec-3GPP%20Rel--20%20(SLP)-blue)](https://github.com/anthropics/solana-agent-kit)
+[![Status](https://img.shields.io/badge/Status-Genesis%20Testnet-green)]()
+[![Hardware](https://img.shields.io/badge/Hardware-TPM%202.0-orange)](https://trustedcomputinggroup.org/)
+[![Network](https://img.shields.io/badge/Network-Solana-purple)](https://solana.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **What if your AI agent could prove it's not a bot swarm?**
->
-> Kytin is the "Blue Checkmark" for the Machine Economy. By binding agent identity to physical hardware (TPM 2.0), we solve the Sybil problem and enable a new DePIN economy fueled by "Resin" (Proof-of-Uptime).
->
-> **Features:** State-Locked Private Keys, Hardware Policy Enforcement, and the "Soul Transfer" protocol for secure migration.
+---
+
+## 📡 The "6G" of Agent Networks
+
+Kytin is the first commercial implementation of the **SLP-Zero Standard** (defined in `slp-solana-agent`). 
+
+While others are building "Apps" (4G), we are building the **Physical Layer** (6G).
+
+| Layer | Description | Kytin Role |
+|-------|-------------|------------|
+| **Protocol** | We utilize the **Release 20** specifications for hardware binding | ✅ Implemented |
+| **Economy** | We replace subscriptions with **Resin**, a "Proof-of-Physics" utility token | ✅ Live |
+| **Device Fleet** | Currently live with **3 Active Sentinels** on our Genesis Testnet | 🟢 Online |
+
+---
+
+## 🧬 Origin Story: Why "Kytin"?
+
+The name is derived from **Chitin** (*KY-tin*), the biopolymer that forms the exoskeleton of lobsters.
+
+| Nature | Tech |
+|--------|------|
+| Chitin gives structure to soft biological life | Kytin gives structure (TPM 2.0) to soft AI life |
+
+> **Without Kytin, your agent is a ghost. With Kytin, it is a machine.** 🦞
 
 ---
 
@@ -62,6 +85,8 @@ npm install
 npm run dev
 # Open http://localhost:3000
 ```
+
+**🌐 Live Demo:** [dashboard-greetme.vercel.app](https://dashboard-greetme.vercel.app)
 
 ### 3. Test the API
 
@@ -132,9 +157,10 @@ curl -X POST http://localhost:18789/migrate \
 ## 🔗 Links
 
 - **Clawhub Registry:** [clawhub.kytin.io](https://clawhub.kytin.io)
-- **Mission Control:** [mission.kytin.io](https://mission.kytin.io)
+- **Mission Control:** [dashboard-greetme.vercel.app](https://dashboard-greetme.vercel.app)
 
 ---
 
 _State-Locked Protocol™ (Patent Pending)_
+
 
