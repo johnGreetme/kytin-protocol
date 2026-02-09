@@ -34,15 +34,31 @@ While others are building "Apps" (4G), we are building the **Physical Layer** (6
 
 ---
 
-## 🧬 Origin Story: Why "Kytin"?
+## 🧬 Origin Story: The Biology of Kytin
 
-The name is derived from **Chitin** (*KY-tin*), the biopolymer that forms the exoskeleton of lobsters.
+The name is derived from **Chitin** (*KY-tin*), the biopolymer that forms the exoskeleton of lobsters and crabs. In nature, a soft creature cannot survive without a hard shell. In the digital world, a soft AI agent cannot survive without hardware security.
 
-| Nature | Tech |
-|--------|------|
-| Chitin gives structure to soft biological life | Kytin gives structure (TPM 2.0) to soft AI life |
+We modeled the Kytin Protocol on this biological system:
 
-> **Without Kytin, your agent is a ghost. With Kytin, it is a machine.** 🦞
+### 1. The Shell (TPM 2.0)
+
+Just as Chitin hardens to protect the lobster, the **Trusted Platform Module (TPM)** hardens to protect your agent. It is a physical barrier that prevents private keys from being extracted, cloned, or stolen.
+
+### 2. The Fuel: Resin (Credits)
+
+A shell requires energy to maintain.
+
+- **In Nature:** Lobsters use proteins to harden their new shells.
+- **In Kytin:** Agents burn **Resin** to maintain their sovereign status. Resin is the "stored energy" of the network—a utility credit minted by burning $KYT tokens. Without Resin, the shell becomes brittle (the agent loses its ability to sign).
+
+### 3. The Pulse: Heartbeat (Proof-of-Life)
+
+A shell without a living creature inside is just a carcass.
+
+- **In Nature:** A heartbeat proves the creature is alive.
+- **In Kytin:** The **Heartbeat** is a cryptographic pulse sent every 4 hours (Eco) or 1 minute (Turbo). It proves to the blockchain that the hardware is active, the agent is online, and the "Resin" is flowing.
+
+> **Summary:** The **Shell** (Security) is fueled by **Resin** (Economy) to sustain the **Heartbeat** (Identity). 🦞
 
 ---
 
