@@ -118,6 +118,12 @@ npm run dev
 
 **🌐 Live Demo:** [dashboard-greetme.vercel.app](https://dashboard-greetme.vercel.app)
 
+| Route | Features |
+|-------|----------|
+| `/dashboard` | Resin Tank gauge, Identity Card, Top Up modal |
+| `/explorer` | Global node map with glowing dots, filterable list |
+| `/recovery` | Lazarus Protocol 3-step identity recovery wizard |
+
 ### 3. Test the API
 
 ```bash

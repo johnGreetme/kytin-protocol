@@ -136,6 +136,43 @@ Ensure your host configuration matches this schema:
 
 ---
 
+## 🔄 Capability 5: Lazarus Protocol (`recover_identity`)
+
+**Trigger:** When hardware fails and the Recovery Wallet is connected.
+
+### Protocol Flow:
+
+1.  **Verify Authority:**
+    * Ensure the connected wallet matches the `recovery_wallet` in the on-chain Identity PDA.
+2.  **Generate New Key:**
+    * Run `npx kytin-init --keygen` on the new hardware to create a fresh TPM keypair.
+3.  **Execute Recovery:**
+    * Call `/recover` endpoint with `{ new_tpm_key: "BASE58_PUBLIC_KEY" }`.
+4.  **Confirmation:**
+    * The Solana program rotates `authority_tpm` to the new key.
+    * Resin balance and Reputation are **preserved**.
+
+**⚠️ Critical Notes:**
+
+* The old TPM key is **blacklisted forever**.
+* Only the `recovery_wallet` can trigger this—not the (dead) TPM.
+
+**Dashboard Access:** https://dashboard-greetme.vercel.app/recovery
+
+---
+
+## 📊 Mission Control Dashboard
+
+Access the visual dashboard at: **https://dashboard-greetme.vercel.app**
+
+| Route | Purpose |
+|-------|---------|
+| `/dashboard` | Resin Tank gauge, Identity Card, Activity panel |
+| `/explorer` | Global map with glowing node locations |
+| `/recovery` | 3-step Lazarus Protocol wizard |
+
+---
+
 ## 🐛 Troubleshooting & Error Codes
 
 | Code | Meaning | Action |
@@ -144,7 +181,9 @@ Ensure your host configuration matches this schema:
 | `POLICY_VIOLATION` | Daily Limit exceeded. | Wait 24h or sign a policy override with Owner Key. |
 | `RESIN_DEPLETED` | 0 Credits remaining. | Use `burn_resin_for_fuel` immediately. |
 | `UNTRUSTED_SOURCE` | Signature mismatch. | **REJECT THE FILE.** Do not install unverified skills. |
+| `RECOVERY_FAILED` | Wrong wallet connected. | Connect the designated Recovery Wallet (Ledger). |
 
 ---
 
 *Powered by State-Locked Protocol™*
+
