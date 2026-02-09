@@ -152,6 +152,10 @@ async function detectTPM(): Promise<TPMInfo> {
 
 async function init(): Promise<void> {
   console.log(BANNER);
+  console.log('\x1b[32m   [🛡️] SENTINEL ...... INITIALIZING\x1b[0m');
+  console.log('\x1b[32m   [🔒] TPM CHIP ...... SCANNING\x1b[0m');
+  console.log('\x1b[32m   [🔋] RESIN ......... PENDING\x1b[0m');
+  console.log('\n');
   log(`Kytin Protocol v${KYTIN_VERSION}`);
   log('');
   

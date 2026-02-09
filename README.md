@@ -12,12 +12,35 @@
 ---
 
 [![Spec](https://img.shields.io/badge/Spec-3GPP%20Rel--20%20(SLP)-blue)](https://github.com/anthropics/solana-agent-kit)
-[![Status](https://img.shields.io/badge/Status-Genesis%20Testnet-green)]()
+[![Status](https://img.shields.io/badge/Status-Genesis%20Testnet-green)](https://dashboard-greetme.vercel.app)
 [![Hardware](https://img.shields.io/badge/Hardware-TPM%202.0-orange)](https://trustedcomputinggroup.org/)
 [![Network](https://img.shields.io/badge/Network-Solana-purple)](https://solana.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    subgraph "Host Machine (Windows/Linux)"
+        A[🤖 OpenClaw Agent] -->|JSON-RPC| B(🔌 Kytin Bridge SDK)
+        B -->|HTTP:18789| C{🛡️ Kytin Sentinel Daemon}
+        C -->|/dev/tpm0| D[🔒 TPM 2.0 Chip]
+    end
+    
+    subgraph "External World"
+        C -->|Heartbeat / Sign| E((☁️ Solana Blockchain))
+        A -->|Verify Skill| F[📦 Clawhub Registry]
+    end
+
+    style C fill:#00ff9d,stroke:#333,stroke-width:2px,color:#000
+    style D fill:#333,stroke:#00ff9d,stroke-width:2px,color:#fff
+    style E fill:#9945FF,stroke:#333,stroke-width:2px,color:#fff
+```
+
+---
+
 
 ## 📡 The "6G" of Agent Networks
 

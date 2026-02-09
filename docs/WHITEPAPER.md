@@ -46,12 +46,39 @@ Kytin utilizes a **Dual-Token DePIN Model** to ensure sustainability.
 
 ## 3. Security Features
 
-### Malware Defense
+### 3.1 Malware Defense
 The Sentinel verifies the signature of every Skill against a "Trusted Developer" whitelist before loading.
 
-### Soul Transfer
+### 3.2 Soul Transfer Protocol
+
 When upgrading hardware, the **Parent TPM** signs a "Last Will" transaction to authorize a **Child TPM**, burning a **0.05 SOL "Reincarnation Fee."**
+
+#### The Migration Flow
+
+```mermaid
+sequenceDiagram
+    participant Old as 💀 Old Device (Parent)
+    participant New as 👶 New Device (Child)
+    participant Net as ☁️ Solana Network
+
+    Note over Old, New: User initiates 'Soul Transfer'
+    New->>New: Generate New TPM Keypair
+    New->>Old: Share Public Key (QR/Local)
+    
+    Old->>Old: 🛑 STOP Kytin Service
+    Old->>Old: Sign "MIGRATE_TO: Child_Key"
+    Old->>Net: Broadcast "Last Will" Transaction
+    
+    Net-->>New: 🟢 Authority Transferred
+    Net-->>Old: 🔴 ID Burned (410 GONE)
+    
+    Old->>Old: 🗑️ Self-Destruct Config
+    Note right of Old: Device is now Cryptographically Dead
+```
+
+> **⚠️ IRREVERSIBLE:** Once the "Last Will" is signed, the old device can NEVER sign transactions again. The TPM marks the key as expired.
 
 ---
 
 *State-Locked Protocol™ is a patent-pending technology.*
+
