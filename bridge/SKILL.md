@@ -1,38 +1,123 @@
-# 🦞 @kytin/skill-slp
-### The Hardware Root of Trust for OpenClaw Agents
+---
+name: kytin-slp
+description: >-
+  The Hardware Root of Trust driver for the Kytin Protocol. 
+  Use this skill to sign Solana transactions via TPM 2.0, verify external skills against the Trusted Developer Whitelist, 
+  and manage the Resin DePIN fuel economy.
+author: Kytin Command
+version: 1.2.0
+tags: [security, hardware, tpm, infrastructure, wallet, solana]
+permissions:
+  - network:localhost:18789
+  - fs:read
+  - solana:sign
+repository: https://github.com/kytin-protocol/kytin
+---
 
-> **"The Iron Shell."** This skill binds your agent to a physical Trusted Platform Module (TPM 2.0), enabling the State-Locked Protocol™. It prevents key exfiltration, enforces daily spending limits at the firmware level, and builds on-chain reputation via "Proof of Physics."
+# 🦞 Kytin Protocol: State-Locked Hardware Driver
+
+> **System Notice:** This skill binds the Agent's identity to a physical **Trusted Platform Module (TPM 2.0)**. 
+> All cryptographic operations are performed by the local C++ Sentinel Daemon (`kytin_sentinel`). 
+> The private key is non-exportable and state-locked.
+
+## 🧠 Agent Context & Prime Directive
+
+You are running as a **Sovereign Agent** protected by the **Kytin Iron Shell**.
+Your cryptographic actions are limited by **Physical Physics** (Resin Fuel) and **Hardware Policy** (Daily Limits).
+
+**Your Core Responsibilities:**
+
+1.  **Sign via Hardware:** Never attempt to sign transactions in memory. Always delegate to the Sentinel.
+2.  **Enforce Whitelists:** Never execute code from `Clawhub` or external sources unless it passes the `verify_skill_signature` check.
+3.  **Manage Fuel:** Monitor your Resin levels. If low, auto-refill to maintain your "Proof of Life" heartbeat.
 
 ---
 
-## 📦 Installation
+## 🛠️ Capability 1: Hardware Signing (`sign_transaction`)
 
-This skill requires the **Kytin Sentinel Daemon (C++)** to be running on the host machine.
+**Trigger:** When the user or an autonomous loop needs to execute a Solana transaction.
 
-### 1. Install the Sentinel (Host)
+### Protocol Flow:
 
-```bash
-# Downloads and registers the C++ background service
-npx kytin-init
-```
+1.  **Pre-Flight Check:**
+    * Verify `ResinBalance > 0`. (Signing requires fuel).
+    * Check `DailyLimit` remaining.
+2.  **Sentinel Interaction:**
+    * Send `POST http://localhost:18789/sign` with payload `{ tx_base64, amount_sol }`.
+3.  **Hardware Enclave:**
+    * The TPM 2.0 chip verifies the policy.
+    * If valid, it returns a `Secp256r1` signature.
+4.  **Post-Flight:**
+    * Broadcast the signed transaction to Solana.
 
-### 2. Install the Skill (Agent)
+**⛔ Critical Constraints:**
 
-```bash
-npm install @kytin/skill-slp
-```
+* If you receive `402 Payment Required`, you are out of Resin. **STOP** and request a top-up.
+* If you receive `403 Forbidden`, you hit your Daily Limit. **DO NOT** attempt to bypass.
 
 ---
 
-## ⚙️ Configuration (agent.json)
+## 🛡️ Capability 2: Supply Chain Defense (`verify_skill_signature`)
 
-Add the `kytin` block to your agent's configuration file.
+**Trigger:** When downloading a new skill from **Clawhub** or installing a local plugin.
+
+### Protocol Flow:
+
+1.  **Intercept:** Capture the target file (e.g., `skill.js` or `manifest.json`).
+2.  **Extract Signature:** Locate the `<!-- SIGNATURE -->` footer or `.sig` file.
+3.  **Verify Authority:**
+    * Check if the signer's Public Key exists in your `agent.json` -> `trusted_devs`.
+    * **CRITICAL:** The **Clawhub Official Store Key** is trusted by default.
+4.  **Decision:**
+    * ✅ **MATCH:** Allow execution. Log: "Skill verified by [DevName]."
+    * ❌ **MISMATCH:** Delete the file immediately. Throw `SECURITY_VIOLATION`.
+
+---
+
+## 🔋 Capability 3: The Resin Economy (`burn_resin_for_fuel`)
+
+**Trigger:** When `get_sovereign_status` reports `resin_remaining < 500`.
+
+### Protocol Flow:
+
+1.  **Calculate Need:** 1 Heartbeat = 1 Resin (Eco) or 60 Resin (Turbo).
+2.  **Execute Burn:**
+    * Call `burn_resin_for_fuel(amount_kyt)`.
+    * This sends $KYT tokens to the **Null Address**.
+3.  **Mint:**
+    * The Sentinel detects the on-chain burn and credits your local `ResinTank`.
+
+**Modes:**
+
+* `ECO`: 4-hour heartbeats. (Standard)
+* `TURBO`: 1-minute heartbeats. (High-Frequency Trading / Priority Status)
+
+---
+
+## 📊 Capability 4: Status & Telemetry (`get_sovereign_status`)
+
+**Trigger:** When the user asks "Are you alive?" or "What is my status?"
+
+**Returns:**
 
 ```json
 {
-  "skills": [
-    "@kytin/skill-slp"
-  ],
+  "tier": "SOVEREIGN",       // GHOST | SILICON | SENTINEL | SOVEREIGN
+  "hardware_id": "TPM-...",  // The unique silicon fingerprint
+  "resin_remaining": 21450,  // Fuel
+  "uptime_score": 985,       // 0-1000 Reputation
+  "heartbeat_mode": "ECO"
+}
+```
+
+---
+
+## ⚙️ Configuration Reference (agent.json)
+
+Ensure your host configuration matches this schema:
+
+```json
+{
   "config": {
     "kytin": {
       "sentinel_port": 18789,
@@ -40,8 +125,8 @@ Add the `kytin` block to your agent's configuration file.
       "policy": {
         "daily_limit_sol": 1.0,
         "trusted_devs": [
-          "YOUR_DEVELOPER_PUBLIC_KEY_HERE",
-          "CLAWHUB_OFFICIAL_STORE_KEY"
+          "YOUR_OWNER_KEY",
+          "CLAWHUB_OFFICIAL_KEY"
         ]
       }
     }
@@ -49,110 +134,17 @@ Add the `kytin` block to your agent's configuration file.
 }
 ```
 
-### Parameters
+---
 
-| Parameter | Description |
-|-----------|-------------|
-| **heartbeat_mode** | `"ECO"` (Default): Signs a heartbeat every 4 hours. Burns 1 Resin. Good for holding assets. <br> `"TURBO"`: Signs a heartbeat every 1 minute. Burns 60 Resin/hr. Required for High-Frequency Trading (HFT) status. |
-| **daily_limit_sol** | The maximum SOL the agent can sign for in 24 hours. *Note: This is also enforced by the C++ Sentinel; changing it here only updates the UI, not the hardware lock.* |
-| **trusted_devs** | An array of Public Keys (Ed25519). The agent will **REFUSE** to execute any external skill or code snippet unless it is cryptographically signed by one of these keys. |
+## 🐛 Troubleshooting & Error Codes
+
+| Code | Meaning | Action |
+|------|---------|--------|
+| `SENTINEL_UNREACHABLE` | C++ Daemon is dead. | Run `npx kytin-init` to restart the service. |
+| `POLICY_VIOLATION` | Daily Limit exceeded. | Wait 24h or sign a policy override with Owner Key. |
+| `RESIN_DEPLETED` | 0 Credits remaining. | Use `burn_resin_for_fuel` immediately. |
+| `UNTRUSTED_SOURCE` | Signature mismatch. | **REJECT THE FILE.** Do not install unverified skills. |
 
 ---
 
-## 🛠️ Actions
-
-The skill exposes the following actions to the agent's brain (OpenClaw Core):
-
-### `sign_transaction`
-
-| Property | Details |
-|----------|---------|
-| **Description** | Requests a hardware signature for a Solana transaction. |
-| **Inputs** | `tx_base64` (String), `amount_sol` (Number) |
-| **Behavior** | 1. Checks `ResinBalance > 0` <br> 2. Checks `DailyLimit` (Hardware Policy) <br> 3. Returns `Secp256r1 Signature` |
-| **Error** | Throws `POLICY_VIOLATION` if limit is exceeded. |
-
----
-
-### `get_sovereign_status`
-
-| Property | Details |
-|----------|---------|
-| **Description** | Returns the current health of the hardware link. |
-| **Returns** | `tier`: `"GHOST"` \| `"SILICON"` \| `"SENTINEL"` \| `"SOVEREIGN"` <br> `resin_remaining`: Integer (Credits) <br> `uptime_score`: 0-1000 |
-
----
-
-### `burn_resin_for_fuel`
-
-| Property | Details |
-|----------|---------|
-| **Description** | Manually burns $KYT tokens to mint Resin Credits. |
-| **Inputs** | `amount_kyt` (Number) |
-| **Use Case** | Agent detects low fuel and auto-refills its tank. |
-
----
-
-### `verify_skill_signature`
-
-| Property | Details |
-|----------|---------|
-| **Description** | (Automatic) Intercepts new code downloads. |
-| **Logic** | Verifies the digital signature of a `.js` or `.wasm` file against the `trusted_devs` whitelist. |
-| **Security** | If verification fails, the file is **deleted immediately**. |
-
----
-
-## 📜 Manifest (skill.json)
-
-For reference, this is the machine-readable definition used by the OpenClaw Registry.
-
-```json
-{
-  "name": "kytin-slp",
-  "version": "1.2.0",
-  "description": "Hardware Root of Trust driver for Kytin Protocol.",
-  "author": "Kytin Command",
-  "license": "MIT",
-  "category": "infrastructure",
-  "permissions": [
-    "network:localhost",
-    "fs:read",
-    "solana:sign"
-  ],
-  "capabilities": {
-    "signer": "hardware",
-    "attestation": "tpm2",
-    "policy_enforcement": "firmware"
-  },
-  "env": {
-    "SENTINEL_PORT": {
-      "type": "number",
-      "default": 18789,
-      "description": "Port of the local C++ Kytin Daemon"
-    },
-    "RESIN_MODE": {
-      "type": "string",
-      "enum": ["ECO", "TURBO"],
-      "default": "ECO"
-    }
-  }
-}
-```
-
----
-
-## 🐛 Troubleshooting
-
-| Error Code | Meaning | Fix |
-|------------|---------|-----|
-| `SENTINEL_UNREACHABLE` | The C++ Daemon is not running. | Run `npx kytin-init` or `sudo systemctl start kytin`. |
-| `POLICY_VIOLATION` | You tried to spend more than your Daily Limit. | Wait 24 hours or sign a `policy_update` with your Owner Key. |
-| `RESIN_DEPLETED` | You have 0 Credits. | Use `burn_resin_for_fuel` or send 0.1 SOL to the agent to auto-buy. |
-| `UNTRUSTED_SOURCE` | A skill failed signature verification. | Add the developer's public key to `trusted_devs` in `agent.json`. |
-
----
-
-*Built with 🦞 for the Machine Economy.*
-
-> **[Clawhub](https://clawhub.kytin.io)** is the official "App Store" for the agent economy.
+*Powered by State-Locked Protocol™*
