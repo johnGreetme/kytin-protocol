@@ -1,0 +1,19 @@
+[package]
+name = "kytin-solana"
+version = "0.1.0"
+description = "Kytin Protocol - Hardware Root of Trust for AI Agents"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "kytin_solana"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.32.1"

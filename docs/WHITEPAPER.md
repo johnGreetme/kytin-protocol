@@ -78,6 +78,14 @@ sequenceDiagram
 
 > **⚠️ IRREVERSIBLE:** Once the "Last Will" is signed, the old device can NEVER sign transactions again. The TPM marks the key as expired.
 
+### 3.6 The Lazarus Protocol (Disaster Recovery)
+
+To mitigate hardware failure (e.g., motherboard destruction) where the TPM cannot sign a migration transaction, Kytin implements an Identity Abstraction Layer.
+
+1.  **Corporate Personhood:** The Agent's identity is a stable Program Derived Address (PDA) on Solana. Contracts and assets are held by the PDA, not the transient TPM key.
+2.  **Guardian Recovery:** The Agent designates an Owner Authority (e.g., a Ledger hardware wallet). In the event of catastrophic hardware failure, the Owner Authority can sign a `Force_Rotate_Key` instruction to appoint a new TPM.
+3.  **Contract Continuity:** Since DeFi interactions and Service Agreements are bound to the PDA, a key rotation does not break existing contracts. The new hardware simply resumes the "CEO" role of the Agent entity.
+
 ---
 
 *State-Locked Protocol™ is a patent-pending technology.*
