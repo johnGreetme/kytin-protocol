@@ -12,7 +12,7 @@
 ---
 
 [![Spec](https://img.shields.io/badge/Spec-3GPP%20Rel--20%20(SLP)-blue)](https://github.com/anthropics/solana-agent-kit)
-[![Status](https://img.shields.io/badge/Status-Genesis%20Testnet-green)](https://dashboard-greetme.vercel.app)
+[![Status](https://img.shields.io/badge/Status-Genesis%20Testnet-green)](https://dashboard-greetme.vercel.app/dashboard)
 [![Hardware](https://img.shields.io/badge/Hardware-TPM%202.0-orange)](https://trustedcomputinggroup.org/)
 [![Network](https://img.shields.io/badge/Network-Solana-purple)](https://solana.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -116,7 +116,7 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-**🌐 Live Demo:** [dashboard-greetme.vercel.app](https://dashboard-greetme.vercel.app)
+**🌐 Live Demo:** [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard)
 
 | Route | Features |
 |-------|----------|
@@ -211,7 +211,7 @@ graph TD
 ## 🔗 Links
 
 - **Clawhub Registry:** [clawhub.kytin.io](./bridge/SKILL.md)
-- **Mission Control:** [dashboard-greetme.vercel.app](https://dashboard-greetme.vercel.app)
+- **Mission Control:** [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard)
 
 ---
 
