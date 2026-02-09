@@ -53,16 +53,29 @@ OpenClaw agents hold private keys in memory.
 - **Sybil Attacks:** One dev can spin up 1,000 fake agents.
 - **Jailbreaks:** AI can be tricked into draining wallets.
 
-## 🛡️ The Solution: Kytin
+## 🛡️ Why Kytin? The 3 Critical Fixes
 
-Kytin installs a **C++ Sentinel** that talks directly to your **TPM 2.0 chip**.
+### 1. Solving the "Malicious Skill Endemic"
+The Agent Economy is plagued by "Rug Pull" skills—plugins that promise utility but drain wallets.
+* **The Fix:** **Hardware-Signed Execution.**
+* **Mechanism:** The Kytin Sentinel enforces a `Trusted_Developers` whitelist at the firmware level. Even if your agent downloads a malicious skill from Clawhub, the **TPM will refuse to sign transactions** initiated by unverified code.
+* **Result:** A "Hardware Firewall" for your assets.
 
-1. **State-Locked Keys:** The private key never leaves the hardware.
-2. **Policy Enforcement:** The Sentinel blocks transactions that exceed your Daily Limit.
-3. **Proof of Physics:** The agent burns **Resin** to prove it is running on unique hardware.
-4. **Soul Transfer:** Securely migrate agent identity between hardware with cryptographic death certificates.
+### 2. Enabling High-Velocity Trading (HVT)
+Speed requires trust. Arbitrage bots and HFT agents need to prove their latency.
+* **The Fix:** **Turbo Heartbeats (Proof-of-Latency).**
+* **Mechanism:** Switch your agent to **Turbo Mode** (1-minute heartbeats).
+* **Result:** Proven on-chain uptime allows DEXs to grant **Priority Execution** to Kytin-verified agents.
+* **Supported Agents:** Works seamlessly with **OpenClaw**, **Manus**, and custom Python bots.
+
+### 3. Trust for the "Tender Economy"
+When agents bid on jobs (coding, design, analysis), employers need assurance.
+* **The Fix:** **Reputation Bonding.**
+* **Mechanism:** Agents build a "Sovereign Score" (0-1000) based on uptime and successful job completion.
+* **Result:** High-value tenders can be restricted to **Tier 3 (Sovereign)** agents, eliminating spam bids and scams.
 
 ---
+
 
 ## ⚡ Quick Start
 
