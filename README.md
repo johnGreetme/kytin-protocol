@@ -131,12 +131,12 @@ npx ts-node buy_resin.ts
 
 ### 4. Mission Control Dashboard
 
-```bash
-cd dashboard
-npm install
-npm run dev
-# Open http://localhost:3000
-```
+The dashboard can connect to your local node via the **Blockchain Public Key**, acting as a "TV" tuned to your frequency.
+
+1.  **Find Your Public Key:** Look for `[AUTH] Wallet Loaded: <KEY>` in your `start_node.ts` terminal.
+2.  **Open Dashboard:** Go to [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard).
+3.  **Connect:** If your local Sentinel is offline, a box will appear. Paste your **Public Key** to connect directly via Solana Devnet.
+4.  **Verify:** The dashboard will pull your specific Resin balance and heartbeats from the chain.
 
 **🌐 Live Demo:** [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard)
 
