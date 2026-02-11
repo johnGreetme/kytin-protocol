@@ -1,9 +1,10 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 
 const connection = new Connection("https://api.devnet.solana.com", "confirmed");
-const TITAN_BURN_MIN = 10.0; // The Law
+const TITAN_BURN_MIN = 1.0; // The Law: 0.8 Burn + 0.2 Treasury
+const TREASURY_PUBKEY = "EXwgowJ1bozQNp3GjsoLkYkPGMce8xHdmhbhEnZRCavZ";
 
-const ANNUAL_TITAN_BURN = 175200; // 10.0 * 2 * 24 * 365
+const ANNUAL_TITAN_BURN = 17520; // 1.0 * 2 * 24 * 365
 
 async function monitorNode(nodePubKey: string) {
     console.log(`👮 WATCHDOG ACTIVE: Monitoring ${nodePubKey}`);
@@ -48,8 +49,12 @@ function getBurnAmountFromTx(tx: any): number {
     // 1. Check Top-Level Instructions
     const instructions = tx.transaction?.message?.instructions || [];
     for (const ix of instructions) {
-        if (ix.parsed && ix.parsed.type === "burn") {
-             totalBurn += (ix.parsed.info.amount / 1_000_000_000);
+        if (ix.parsed) {
+            if (ix.parsed.type === "burn") {
+                totalBurn += (ix.parsed.info.amount / 1_000_000_000);
+            } else if (ix.parsed.type === "transfer" && ix.parsed.info.destination === TREASURY_PUBKEY) {
+                totalBurn += (ix.parsed.info.amount / 1_000_000_000);
+            }
         }
     }
 
@@ -57,8 +62,12 @@ function getBurnAmountFromTx(tx: any): number {
     const innerInstructions = tx.meta?.innerInstructions || [];
     for (const inner of innerInstructions) {
         for (const ix of inner.instructions) {
-             if (ix.parsed && ix.parsed.type === "burn") {
-                 totalBurn += (ix.parsed.info.amount / 1_000_000_000);
+             if (ix.parsed) {
+                 if (ix.parsed.type === "burn") {
+                     totalBurn += (ix.parsed.info.amount / 1_000_000_000);
+                 } else if (ix.parsed.type === "transfer" && ix.parsed.info.destination === TREASURY_PUBKEY) {
+                     totalBurn += (ix.parsed.info.amount / 1_000_000_000);
+                 }
              }
         }
     }
