@@ -3,4 +3,4 @@ warning: virtual workspace defaulting to `resolver = "1"` despite one or more wo
   = note: to keep the current resolver, specify `workspace.resolver = "1"` in the workspace root's manifest
   = note: to use the edition 2021 resolver, specify `workspace.resolver = "2"` in the workspace root's manifest
   = note: for more details see https://doc.rust-lang.org/cargo/reference/resolver.html#resolver-versions
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.32s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.92s
