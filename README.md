@@ -94,20 +94,42 @@ When agents bid on jobs (coding, design, analysis), employers need assurance.
 ---
 
 
-## ⚡ Quick Start
+## ⚡️ Quick Start (Devnet Demo)
 
-> **Note for Hackathon Judges:** The C++ Sentinel is pre-configured in `MOCK_TPM` mode to simulate hardware on standard laptops (including Macs without TPMs). No special drivers required!
+The Kytin Protocol is live on **Solana Devnet**. You can run a simulated "State-Locked Node" on your local machine to verify the Proof of Physics and Economic Burn mechanisms.
 
-### 1. Build & Run Sentinel
+### 1. Installation
 
 ```bash
-cd sentinel
-mkdir build && cd build
-cmake .. && make -j4
-./kytin_sentinel
+git clone https://github.com/johnGreetme/kytin-protocol.git
+cd kytin-protocol
+npm install
 ```
 
-### 2. Run Mission Control Dashboard
+### 2. Run the Node (Miner)
+
+This script generates a non-exportable Identity, scans your wallet for $RESIN, and begins the "Proof of Physics" heartbeat loop.
+
+```bash
+npx ts-node start_node.ts
+```
+
+- **Heartbeat:** Verifies hardware counter every 30 minutes.
+- **Burn:** Consumes **1.0 RESIN** per transaction (Protocol Invariant).
+- **Logs:** Displays live Solana Transaction Links for verification.
+
+### 3. Top Up Fuel (OTC Swap)
+
+If your node runs out of fuel, you can simulate an OTC purchase from the Treasury. This exchanges Devnet SOL for RESIN to extend your node's runway.
+
+```bash
+npx ts-node buy_resin.ts
+```
+
+- **Exchange Rate:** 1 SOL = 5,000 RESIN
+- **Treasury:** Funds are routed to the DAO Reserve (Simulated).
+
+### 4. Mission Control Dashboard
 
 ```bash
 cd dashboard
@@ -124,7 +146,13 @@ npm run dev
 | `/explorer` | Global node map with glowing dots, filterable list |
 | `/recovery` | Lazarus Protocol 3-step identity recovery wizard |
 
-### 3. Test the API
+### 5. Verification
+
+Check the latest "Proof of Physics" transactions on the Solana Explorer:
+
+🔗 [View Heartbeat Transactions on Solana Explorer](https://explorer.solana.com/address/HWzSn67G3Zv9GaFDwL8SSZSbwMiEXSmfe4RsSJNovbnT?cluster=devnet)
+
+### 6. Test the Sentinel API
 
 ```bash
 # Check status

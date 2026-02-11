@@ -18,8 +18,8 @@ import * as path from 'path';
 
 // --- CONFIGURATION ---
 const RPC_URL = "https://api.devnet.solana.com";
-const HEARTBEAT_INTERVAL_MS = 10000; // 10 Seconds
-const BURN_AMOUNT = 0.01;
+const HEARTBEAT_INTERVAL_MS = 1800000; // 30 Minutes
+const BURN_AMOUNT = 1.0; // 1 RESIN (The Real Price)
 const GENESIS_AMOUNT = 10000;
 const DECIMALS = 9;
 
