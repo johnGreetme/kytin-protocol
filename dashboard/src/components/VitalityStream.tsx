@@ -22,28 +22,84 @@ interface VitalityStreamProps {
 }
 
 export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) {
+  // State Types
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  // 1. Hooks (Order matters)
   const [isConnected, setIsConnected] = useState(false);
   const [pulseCount, setPulseCount] = useState(0);
   const [isPulsing, setIsPulsing] = useState(false);
+  const [lastPulseTime, setLastPulseTime] = useState<number>(0); // 0 initially to avoid hydration mismatch
+  const [isFlatlined, setIsFlatlined] = useState(false);
 
-  // EKG State
+  // EKG Refs
   const dataPoints = useRef<number[]>([]);
   const frameId = useRef<number>(0);
   const pulseQueue = useRef<number[]>([]);
+  const audioCtx = useRef<AudioContext | null>(null);
 
+  // 2. Audio Logic
+  const playBeep = useCallback(() => {
+    try {
+      if (!audioCtx.current) {
+        audioCtx.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioCtx.current;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime); // A5
+      osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
+      
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.1);
+    } catch (e) {
+      // Ignore audio errors (user interaction required)
+    }
+  }, []);
+
+  // 3. Pulse Logic
   const triggerPulse = useCallback(() => {
-    // Add the pattern to the queue to be rendered frame-by-frame
-    // We space them out slightly to allow existing queue to clear if needed
-    // or just append.
     setPulseCount(c => c + 1);
     setIsPulsing(true);
     pulseQueue.current = [...HEARTBEAT_PATTERN];
-    if (onPulse) onPulse();
-    setTimeout(() => setIsPulsing(false), 1000); // Reset UI pulse after 1s
-  }, [onPulse]);
+    
+    playBeep();
 
-  // Listener Setup
+    if (onPulse) onPulse();
+    
+    setLastPulseTime(Date.now());
+    setTimeout(() => setIsPulsing(false), 1000); 
+  }, [onPulse, playBeep]);
+
+  // 4. Initialize on Mount
+  useEffect(() => {
+    setLastPulseTime(Date.now());
+  }, []);
+
+  // 5. Flatline Checker
+  useEffect(() => {
+    const interval = setInterval(() => {
+        // If connected and no pulse for > 15s
+        if (isConnected && Date.now() - lastPulseTime > 15000) {
+            setIsFlatlined(true);
+        } else {
+            setIsFlatlined(false);
+        }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lastPulseTime, isConnected]);
+
+  // 6. Solana Listener
   useEffect(() => {
     if (!walletAddress) return;
 
@@ -60,12 +116,12 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
 
     console.log(`[VITALITY] Listening to ${walletAddress}...`);
     setIsConnected(true);
+    setLastPulseTime(Date.now()); 
 
-    // Subscribe to Logs
     subId = connection.onLogs(
       pubkey,
       (logs, ctx) => {
-        if (logs.err) return; // Skip failed txs? Or maybe show "fibrillation"?
+        if (logs.err) return; 
         console.log("[VITALITY] Pulse detected!", logs.signature);
         triggerPulse();
       },
@@ -78,7 +134,7 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
     };
   }, [walletAddress, triggerPulse]);
 
-  // Animation Loop
+  // 7. Animation Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -122,14 +178,9 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
       }
 
       // 2. Clear Screen
-      // Transparent clear or fade? Clear is cleaner for EKG.
       ctx.clearRect(0, 0, width, height);
 
-      // 3. Draw Grid (Optional - Cyber look)
-      ctx.strokeStyle = '#111';
-      ctx.lineWidth = 1;
-      
-      // 4. Draw EKG Line
+      // 3. Draw EKG Line
       ctx.beginPath();
       ctx.strokeStyle = '#00ff9d'; // Neon Green
       ctx.lineWidth = 2;
@@ -137,20 +188,12 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
       ctx.shadowColor = '#00ff9d';
       ctx.lineJoin = 'round';
 
-      // We draw from right to left or left to right?
-      // Standard EKG: New data appears on right, moves left.
-      // So index i maps to x = width - (length - i) * step
       const step = 2; // Pixels per data point
-      
       const len = dataPoints.current.length;
       
       for (let i = 0; i < len; i++) {
-        const x = i * step; // Simple scroll: 0 is old, width is new?
-        // Wait, if we push to end and shift from start, then index 0 is OLD (Left), index Len is NEW (Right).
-        // Correct.
+        const x = i * step; 
         const pointY = dataPoints.current[i];
-        
-        // Draw
         const drawX = x; 
         const drawY = centerY + pointY;
         
@@ -162,7 +205,7 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
       }
       ctx.stroke();
 
-      // 5. Scanline / Leading Dot (The "Head")
+      // 4. Scanline / Leading Dot (The "Head")
       const lastX = (len - 1) * step;
       const lastY = centerY + dataPoints.current[len-1];
       
@@ -181,7 +224,7 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
     return () => {
       cancelAnimationFrame(frameId.current);
     };
-  }, []); // Run once on mount (canvas sizing might need resize observer but ok for now)
+  }, []);
 
   return (
     <div className="relative w-full h-[200px] bg-[#0b0b0e] rounded-xl overflow-hidden border border-[#222] shadow-[0_0_50px_-12px_rgba(0,255,157,0.2)]">
@@ -189,12 +232,12 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
       
       {/* Overlay UI */}
       <div className="absolute top-4 left-4 flex flex-col gap-1">
-        <div className="flex items-center gap-2 text-[#00ff9d] text-xs font-bold tracking-widest uppercase">
+        <div className={`flex items-center gap-2 text-xs font-bold tracking-widest uppercase ${isFlatlined ? 'text-red-500 animate-pulse' : 'text-[#00ff9d]'}`}>
             <Activity size={14} className={isPulsing ? "animate-pulse" : ""} />
-            Vitality Stream // {isConnected ? "LINKED" : "SEARCHING..."}
+            VITALITY FEED // {isConnected ? (isFlatlined ? "FLATLINING..." : "PULSE-LOCKED") : "SEARCHING..."}
         </div>
         <div className="text-[#333] text-[10px] font-mono">
-           ID: {walletAddress ? `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}` : "NULL"}
+           KYTIN CORE ID: {walletAddress ? `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}` : "NULL"}
         </div>
       </div>
 
