@@ -56,38 +56,41 @@ async function startProcesses(pubKey: string) {
 }
 
 async function main() {
-    console.log("🚀 INITIALIZING KYTIN TITAN CONTROL (Resilience v1.0)...");
+    console.log("🚀 INITIALIZING KYTIN TITAN CONTROL (Resilience v1.1)...");
 
-    // 1. Resolve Target PubKey from local wallet
-    const homeDir = os.homedir();
-    const keyPath = join(homeDir, ".config", "solana", "id.json");
-    let pubKey = "HWzSn67G3Zv9GaFDwL8SSZSbwMiEXSmfe4RsSJNovbnT"; // Default for demo
+    const RPC_URL = "https://api.devnet.solana.com"; 
+    const pubKey = "HWzSn67G3Zv9GaFDwL8SSZSbwMiEXSmfe4RsSJNovbnT"; 
 
     const { verifySync } = await import("./check_sync.ts");
 
     console.log(`[SYS] Identity: ${BLUE}${pubKey}${RESET}`);
+    console.log("📡 [NETWORK] Checking internet and sync status...");
 
-    // Pre-flight sync check
-    console.log("[SYS] Performing Pre-Flight Sync Check...");
-    let synced = await verifySync("https://api.devnet.solana.com");
+    // Pre-flight sync gate
+    let synced = await verifySync(RPC_URL);
     
     while (!synced) {
-        console.log(`${YELLOW}[NETWORK] ⏳ Waiting for initial sync...${RESET}`);
+        console.log(`${YELLOW}[SYNC] Catching up... Waiting for initial lock...${RESET}`);
         await new Promise(resolve => setTimeout(resolve, 10000));
-        synced = await verifySync("https://api.devnet.solana.com");
+        synced = await verifySync(RPC_URL);
     }
 
+    console.log(`${GREEN}✅ [SYNC] Node is synchronized. Launching fleet...${RESET}`);
     await startProcesses(pubKey);
 
     // Resilience Monitoring Loop (Every 60s)
     setInterval(async () => {
-        const currentSync = await verifySync("https://api.devnet.solana.com");
-        
-        if (!currentSync) {
-            stopProcesses("Sync Lost or Offline");
-        } else if (isHibernating) {
-            console.log(`${GREEN}✅ Sync Restored. Resuming Heartbeats...${RESET}`);
-            await startProcesses(pubKey);
+        try {
+            const currentSync = await verifySync(RPC_URL);
+            
+            if (!currentSync) {
+                stopProcesses("Offline or Out-of-Sync");
+            } else if (isHibernating) {
+                console.log(`${GREEN}✅ Sync Restored. Resuming Heartbeats...${RESET}`);
+                await startProcesses(pubKey);
+            }
+        } catch (error) {
+            stopProcesses("Internet/RPC Connection Lost");
         }
     }, 60000);
 
