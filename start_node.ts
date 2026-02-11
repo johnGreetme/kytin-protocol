@@ -18,6 +18,8 @@ import * as os from 'os';
 import * as path from 'path';
 
 // --- CONFIGURATION ---
+const __dirname = process.cwd();
+
 const RPC_URL = "https://api.devnet.solana.com";
 const HEARTBEAT_INTERVAL_MS = 10000; // 10 Seconds (Demo Speed)
 // const HEARTBEAT_INTERVAL_MS = 1800000; // 30 Minutes (Mainnet Speed)
@@ -34,6 +36,36 @@ const deviceId = "RPI-DEV-001";
 async function main() {
     console.clear();
     console.log("🦞 KYTIN PROTOCOL: STATE-LOCKED NODE");
+    
+    // --- SINGLETON LOCK ---
+    const lockFile = path.join(__dirname, 'node.lock');
+    try {
+        if (fs.existsSync(lockFile)) {
+            const pid = parseInt(fs.readFileSync(lockFile, 'utf8'));
+            try {
+                process.kill(pid, 0); // Check if process exists
+                console.error(`\n❌ CRITICAL: Instance already running (PID: ${pid}).`);
+                console.error("   Terminating this instance to prevent conflicts.");
+                console.error("   Run 'killall node' if you believe this is an error.\n");
+                process.exit(1);
+            } catch (e) {
+                // Process not found, stale lock
+                console.log("⚠️ Cleared stale lock file.");
+            }
+        }
+        fs.writeFileSync(lockFile, process.pid.toString());
+    } catch (err) {
+        console.error("Lock error:", err);
+    }
+
+    // Cleanup on generic exit
+    const cleanup = () => {
+        try { if (fs.existsSync(lockFile)) fs.unlinkSync(lockFile); } catch {}
+        process.exit();
+    };
+    process.on('SIGINT', cleanup);
+    process.on('SIGTERM', cleanup);
+    // ---------------------
     
     const connection = new Connection(RPC_URL, "confirmed");
     const homeDir = os.homedir();
