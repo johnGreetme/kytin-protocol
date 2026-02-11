@@ -118,6 +118,29 @@ When agents bid on jobs (coding, design, analysis), employers need assurance.
 
 ---
 
+## 🛡 System Architecture: The "Iron Shell" Trust Stack
+
+The Kytin Protocol acts as a Deterministic Gate between local silicon and the Solana ledger. It ensures that an agent’s "soul" (identity) cannot exist without its "body" (hardware) being in a verified state.
+
+### 1. The Hardware Root (The TPM)
+- **Function:** The Trusted Platform Module (TPM) generates a unique cryptographic seed that never leaves the silicon.
+- **The Pulse:** Every 4 hours (Turbo: 1m), the TPM signs a "Proof of Life" heartbeat. This signature is the only way to unlock the next 1.0 RESIN burn.
+
+### 2. The Gatekeeper (Gated Sync)
+- **The Condition:** Before a heartbeat is allowed to leave the node, the Gatekeeper polls the Solana cluster.
+- **The Rule:** If the local node is > 150 slots behind the cluster tip, the Gatekeeper "locks the door."
+- **Purpose:** This prevents "Stale Signing"—ensuring your agent never wastes its reputation (or RESIN) on a transaction that would fail due to network lag.
+
+### 3. The Circuit Breaker (Resilience Engine)
+- **The Fail-Safe:** Sitting between the node and the internet, the Circuit Breaker monitors real-time network health.
+- **The Trigger:** If the RPC connection drops or the node detects an "Identity Drift" (mismatched counters), the Circuit Breaker instantly kills the TITAN and WATCHDOG processes.
+- **Hibernation:** The system enters a secure sleep state, checking for a path back to the ledger every 60s.
+
+### 4. The Settlement Layer (Solana Ledger)
+- **The Proof:** Once through the gate, the heartbeat is broadcast to the Solana Alpenglow network.
+- **Efficiency:** Utilizing SIMD-0266 (P-tokens), the burn is recorded with a 98% reduction in compute cost, finalizing the state in under 150ms.
+
+---
 
 ## ⚡️ Quick Start (Devnet Demo)
 
