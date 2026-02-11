@@ -171,13 +171,25 @@ The dashboard can connect to your local node via the **Blockchain Public Key**, 
 | `/explorer` | Global node map with glowing dots, filterable list |
 | `/recovery` | Lazarus Protocol 3-step identity recovery wizard |
 
-### 5. Verification
+### 5. Automated Verification (The Watchdog)
+
+Run the independent verifier to audit your node's burn rate and see the **Titan Annual Projection**.
+
+```bash
+npx ts-node watchdog.ts <YOUR_PUBLIC_KEY>
+```
+
+- **Audits:** Verifies 10.0 RESIN burn per heartbeat.
+- **Projections:** Calculates annual deflationary impact (Titan Spec).
+- **Alerts:** Flags "Fraud" if a node under-burns.
+
+### 6. Blockchain Verification
 
 Check the latest "Proof of Physics" transactions on the Solana Explorer:
 
 🔗 [View Heartbeat Transactions on Solana Explorer](https://explorer.solana.com/address/HWzSn67G3Zv9GaFDwL8SSZSbwMiEXSmfe4RsSJNovbnT?cluster=devnet)
 
-### 6. Test the Sentinel API
+### 7. Test the Sentinel API
 
 ```bash
 # Check status
