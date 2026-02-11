@@ -138,7 +138,7 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-**🌐 Live Demo:** [kytin-protocol.vercel.app/dashboard](https://kytin-protocol.vercel.app/dashboard)
+**🌐 Live Demo:** [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard)
 
 | Route | Features |
 |-------|----------|
