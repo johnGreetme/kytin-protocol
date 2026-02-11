@@ -11,7 +11,7 @@
 ---
 
 [![Spec](https://img.shields.io/badge/Spec-3GPP%20Rel--20%20(SLP)-blue)](https://github.com/anthropics/solana-agent-kit)
-[![Status](https://img.shields.io/badge/Status-Genesis%20Testnet-green)](https://dashboard-greetme.vercel.app/dashboard)
+[![Status](https://img.shields.io/badge/Status-Genesis%20Devnet-green)](https://dashboard-greetme.vercel.app/dashboard)
 [![Hardware](https://img.shields.io/badge/Hardware-TPM%202.0-orange)](https://trustedcomputinggroup.org/)
 [![Network](https://img.shields.io/badge/Network-Solana-purple)](https://solana.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -29,7 +29,7 @@ While others are building "Apps" (4G), we are building the **Physical Layer** (6
 |-------|-------------|------------|
 | **Protocol** | We utilize the **Release 20** specifications for hardware binding | ✅ Implemented |
 | **Economy** | We replace subscriptions with **Resin**, a "Proof-of-Physics" utility token | ✅ Live |
-| **Device Fleet** | Currently live with **3 Active Sentinels** on our Genesis Testnet | 🟢 Online |
+| **Device Fleet** | Currently live with **3 Active Sentinels** on our Genesis Devnet | 🟢 Online |
 
 ---
 
