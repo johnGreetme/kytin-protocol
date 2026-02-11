@@ -232,23 +232,46 @@ The dashboard can connect to your local node via the **Blockchain Public Key**, 
 | `/explorer` | Global node map with glowing dots, filterable list |
 | `/recovery` | Lazarus Protocol 3-step identity recovery wizard |
 
-### 🏃 Quick Start (Devnet Demo)
+---
 
-Experience the unified Kytin "Command Center" in a single terminal.
+## 💾 Setup & Recovery: The Operator's Manual
+
+This section ensures that any operator (or judge) can spin up a Kytin node and understand how to recover a "State-Locked Soul" if the hardware is destroyed.
+
+### 1. Quick Start (The 1-Click Launch)
+
+For the demo, we use a unified runner that handles both the **Titan Node** (Execution) and the **Watchdog** (Verification).
 
 ```bash
-# 1. Install Dependencies
+# Install dependencies
 npm install
 
-# 2. Launch the Titan Control Center
-# This runs Sync Verification, the Node [TITAN], and the Verifier [WATCHDOG].
+# Launch the Unified Resilience Runner
+# This will automatically: Verify Sync -> Gate Startup -> Begin Heartbeats
 npx ts-node titan.ts
 ```
 
-#### what you will see:
-- **[SYS]** Pre-flight sync verification (Check drift against cluster tip).
-- **[TITAN]** logs show hardware signatures and on-chain heartbeats.
-- **[WATCHDOG]** logs show real-time verification and annual burn projections.
+> [!TIP]
+> **Circuit Breaker Test:** To test the resilience engine, you can simulate a fuel outage by not topping up. If the node runs out of RESIN, the Watchdog will flag it, and the system prepares for hibernation. Or, simply disconnect your internet—the Titan will instantly trigger its kill-switch.
+
+### 2. Hardware Recovery: The Lazarus Protocol
+
+If a physical "Shell" is destroyed, the agent's identity isn't lost—it is **State-Locked**. The Lazarus Protocol allows an operator to migrate a "Soul" to new silicon using the 2026 Solana Lazarus Cluster Recovery standard.
+
+> [!IMPORTANT]
+> **Seed Security:** Your Recovery Seed must be kept offline. If this seed is compromised, your agent's identity and its **90,000+ RESIN** balance can be hijacked.
+
+#### Recovery Steps:
+
+1. **Identity Extraction:** Use your encrypted backup to retrieve the TPM Seed Layer.
+2. **Sync-Lock Check:** The new node must be within 150 slots of the last recorded heartbeat on the ledger.
+3. **Pulse Re-Entry:**
+
+```bash
+npx ts-node lazarus_recover.ts --old-identity <YOUR_OLD_PUBKEY> --new-tpm-id <NEW_HARDWARE_ID>
+```
+
+**Result:** The RESIN balance and the signing counter are "resurrected" on the new hardware, maintaining 100% audit continuity and sovereign status.
 
 ---
 
