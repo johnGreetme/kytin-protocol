@@ -1,0 +1,10 @@
+{
+  "name": "kytin-protocol",
+  "version": "1.0.0",
+  "description": "Hardware-Bound Identity Protocol",
+  "type": "module",
+  "dependencies": {
+    "@solana/spl-token": "^0.4.1",
+    "@solana/web3.js": "^1.91.1"
+  }
+}

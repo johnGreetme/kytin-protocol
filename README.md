@@ -171,15 +171,39 @@ The dashboard can connect to your local node via the **Blockchain Public Key**, 
 | `/explorer` | Global node map with glowing dots, filterable list |
 | `/recovery` | Lazarus Protocol 3-step identity recovery wizard |
 
-### 5. Automated Verification (The Watchdog)
+### 🏃 Quick Start (Devnet Demo)
 
-Run the independent verifier to audit your node's burn rate and see the **Titan Annual Projection**.
+Experience the unified Kytin "Command Center" in a single terminal.
 
 ```bash
-npx ts-node watchdog.ts <YOUR_PUBLIC_KEY>
+# 1. Install Dependencies
+npm install
+
+# 2. Launch the Titan Control Center
+# This runs the Node [TITAN] and the Verifier [WATCHDOG] concurrently.
+npx ts-node titan.ts
 ```
 
-- **Audits:** Verifies 10.0 RESIN burn per heartbeat.
+#### What you will see:
+- **[TITAN]** logs show hardware signatures and on-chain heartbeats.
+- **[WATCHDOG]** logs show real-time verification and annual burn projections.
+
+---
+
+### 🛡️ Manual Verification (Specialized)
+
+If you wish to run the components in separate environments:
+
+1. **Top-up RESIN:** `npx ts-node buy_resin.ts`
+2. **Run Node:** `npx ts-node start_node.ts`
+3. **Run Verifier:** `npx ts-node watchdog.ts <PUBKEY>`
+
+---
+
+### 👮 Automated Verification (The Watchdog)
+
+The independent verifier audits node honesty and calculates economic impact:
+- **Audits:** Verifies 1.0 RESIN burn split per heartbeat.
 - **Projections:** Calculates annual deflationary impact (Titan Spec).
 - **Alerts:** Flags "Fraud" if a node under-burns.
 
@@ -276,6 +300,7 @@ The Kytin Protocol is fully optimized for the **Alpenglow** era of Solana:
 - **P-Token Ready:** Compliant with SIMD-0266 for a 98% reduction in on-chain CU usage.
 - **Votor/Rotor Sync:** Optimized for sub-150ms state-locking.
 - **Zero-Copy Architecture:** Heartbeats are processed with zero-heap allocation, making Kytin nodes the most efficient autonomous agents on the ledger.
+- **Unified Oversight:** Compatible with the `titan.ts` management suite for institutional fleet monitoring.
 
 ## 🏗️ Architecture
 
