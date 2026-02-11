@@ -26,7 +26,7 @@ const HEARTBEAT_INTERVAL_MS = 10000; // 10 Seconds (Demo Speed)
 
 // --- PROTOCOL CONSTANTS ---
 // NOTE: On Mainnet, this is enforced by the Anchor Program.
-const BURN_AMOUNT = 1.0; 
+const BURN_AMOUNT = 10.0; // The Titan Tax 
 const DECIMALS = 9;
 
 // --- MOCK HARDWARE STATE ---
@@ -121,7 +121,7 @@ async function runHeartbeat(connection: Connection, wallet: Keypair, mint: Publi
         const currentBalance = Number(accountInfo.amount) / (10 ** DECIMALS);
 
         console.log(`[NET] 📡 Verified: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
-        console.log(`[ECO] 🔥 Burned 1.0 RESIN | ⛽️ REMAINING: ${currentBalance.toFixed(2)}`);
+        console.log(`[ECO] 🔥 Burned ${BURN_AMOUNT} RESIN | ⛽️ REMAINING: ${currentBalance.toFixed(2)}`);
         
     } catch (err) {
         console.error(`[ERROR] Heartbeat failed: ${err}`);

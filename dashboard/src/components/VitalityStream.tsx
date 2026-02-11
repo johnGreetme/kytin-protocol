@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Connection, PublicKey } from '@solana/web3.js';
-import { Activity } from 'lucide-react';
+import { Connection, PublicKey, ParsedTransactionWithMeta } from '@solana/web3.js';
+import { Activity, AlertTriangle, ShieldAlert } from 'lucide-react';
 
 const RPC_URL = 'https://api.devnet.solana.com';
 const WSS_URL = 'wss://api.devnet.solana.com';
+const TITAN_BURN_MIN = 10.0;
 
 // P-wave (small up), Q (small down), R (huge up), S (huge down), T (medium up)
 const HEARTBEAT_PATTERN = [
@@ -16,21 +17,26 @@ const HEARTBEAT_PATTERN = [
   -10, -15, -10, 0 // T
 ];
 
+// Glitchy pattern for fraud
+const FRAUD_PATTERN = [
+  -20, 20, -40, 40, -10, 80, -80, 10, -5, 5
+];
+
 interface VitalityStreamProps {
   walletAddress: string;
   onPulse?: () => void;
 }
 
 export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) {
-  // State Types
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // 1. Hooks (Order matters)
+  // State
   const [isConnected, setIsConnected] = useState(false);
   const [pulseCount, setPulseCount] = useState(0);
   const [isPulsing, setIsPulsing] = useState(false);
-  const [lastPulseTime, setLastPulseTime] = useState<number>(0); // 0 initially to avoid hydration mismatch
+  const [lastPulseTime, setLastPulseTime] = useState<number>(0);
   const [isFlatlined, setIsFlatlined] = useState(false);
+  const [isFraudulent, setIsFraudulent] = useState(false);
 
   // EKG Refs
   const dataPoints = useRef<number[]>([]);
@@ -38,8 +44,8 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
   const pulseQueue = useRef<number[]>([]);
   const audioCtx = useRef<AudioContext | null>(null);
 
-  // 2. Audio Logic
-  const playBeep = useCallback(() => {
+  // Audio
+  const playBeep = useCallback((isFraud: boolean = false) => {
     try {
       if (!audioCtx.current) {
         audioCtx.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -53,27 +59,33 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, ctx.currentTime); // A5
-      osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
+      if (isFraud) {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
+      } else {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
+      }
       
       gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (isFraud ? 0.3 : 0.1));
 
       osc.start();
-      osc.stop(ctx.currentTime + 0.1);
-    } catch (e) {
-      // Ignore audio errors (user interaction required)
-    }
+      osc.stop(ctx.currentTime + (isFraud ? 0.3 : 0.1));
+    } catch (e) {}
   }, []);
 
-  // 3. Pulse Logic
-  const triggerPulse = useCallback(() => {
+  // Pulse Logic
+  const triggerPulse = useCallback((fraud: boolean = false) => {
     setPulseCount(c => c + 1);
     setIsPulsing(true);
-    pulseQueue.current = [...HEARTBEAT_PATTERN];
+    setIsFraudulent(fraud);
     
-    playBeep();
+    pulseQueue.current = fraud ? [...FRAUD_PATTERN, ...FRAUD_PATTERN] : [...HEARTBEAT_PATTERN];
+    
+    playBeep(fraud);
 
     if (onPulse) onPulse();
     
@@ -81,15 +93,12 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
     setTimeout(() => setIsPulsing(false), 1000); 
   }, [onPulse, playBeep]);
 
-  // 4. Initialize on Mount
-  useEffect(() => {
-    setLastPulseTime(Date.now());
-  }, []);
+  // Init
+  useEffect(() => { setLastPulseTime(Date.now()); }, []);
 
-  // 5. Flatline Checker
+  // Flatline Check
   useEffect(() => {
     const interval = setInterval(() => {
-        // If connected and no pulse for > 15s
         if (isConnected && Date.now() - lastPulseTime > 15000) {
             setIsFlatlined(true);
         } else {
@@ -99,7 +108,7 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
     return () => clearInterval(interval);
   }, [lastPulseTime, isConnected]);
 
-  // 6. Solana Listener
+  // Solana Listener
   useEffect(() => {
     if (!walletAddress) return;
 
@@ -107,12 +116,7 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
     const connection = new Connection(RPC_URL, { wsEndpoint: WSS_URL });
     let pubkey: PublicKey;
 
-    try {
-      pubkey = new PublicKey(walletAddress);
-    } catch (e) {
-      console.error("Invalid key for stream", e);
-      return;
-    }
+    try { pubkey = new PublicKey(walletAddress); } catch (e) { return; }
 
     console.log(`[VITALITY] Listening to ${walletAddress}...`);
     setIsConnected(true);
@@ -120,10 +124,33 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
 
     subId = connection.onLogs(
       pubkey,
-      (logs, ctx) => {
+      async (logs, ctx) => {
         if (logs.err) return; 
-        console.log("[VITALITY] Pulse detected!", logs.signature);
-        triggerPulse();
+        
+        // 1. Fetch TX to verify Burn
+        const signature = logs.signature;
+        console.log("[VITALITY] Pulse detected, verifying...", signature);
+        
+        try {
+            // We need to fetch full tx to see amounts. 
+            // Note: This adds a slight delay to the visual pulse, which is fine for "Verification" feel.
+            const tx = await connection.getParsedTransaction(signature, {
+                maxSupportedTransactionVersion: 0
+            });
+            
+            const actualBurn = getBurnAmountFromTx(tx);
+            
+            if (actualBurn < TITAN_BURN_MIN) {
+                console.warn(`🚨 FRAUD DETECTED: Burned ${actualBurn} < ${TITAN_BURN_MIN}`);
+                triggerPulse(true); // FRAUD PULSE
+            } else {
+                console.log(`✅ VALID: Burned ${actualBurn}`);
+                triggerPulse(false); // NORMAL PULSE
+            }
+        } catch (e) {
+            console.error("Verification failed, assuming visual pulse only", e);
+            triggerPulse(false); // Fallback
+        }
       },
       "confirmed"
     );
@@ -134,15 +161,13 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
     };
   }, [walletAddress, triggerPulse]);
 
-  // 7. Animation Loop
+  // Animation Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas fidelity
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * dpr;
@@ -153,88 +178,102 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
     const height = rect.height;
     const centerY = height / 2;
 
-    // Fill initial buffer with baseline
     if (dataPoints.current.length === 0) {
       dataPoints.current = new Array(Math.ceil(width / 2)).fill(0);
     }
 
     const render = () => {
-      // 1. Generate Next Point
       let nextY = 0;
-
-      // Check Queue (Pulse)
       if (pulseQueue.current.length > 0) {
         nextY = pulseQueue.current.shift()!;
       } else {
-        // Resting Noise (jitters between -2 and 2)
-        nextY = (Math.random() - 0.5) * 4;
+        // Jitter: Higher if fraud
+        const noise = isFraudulent ? 8 : 4;
+        nextY = (Math.random() - 0.5) * noise;
       }
 
-      // Add to data (Head)
       dataPoints.current.push(nextY);
-      // Remove tail (keep fixed length)
       if (dataPoints.current.length > width / 2) {
         dataPoints.current.shift();
       }
 
-      // 2. Clear Screen
       ctx.clearRect(0, 0, width, height);
-
-      // 3. Draw EKG Line
       ctx.beginPath();
-      ctx.strokeStyle = '#00ff9d'; // Neon Green
+      
+      // Color Logic
+      const color = isFraudulent ? '#ff4b2b' : '#00ff9d';
+      
+      ctx.strokeStyle = color;
       ctx.lineWidth = 2;
       ctx.shadowBlur = 10;
-      ctx.shadowColor = '#00ff9d';
+      ctx.shadowColor = color;
       ctx.lineJoin = 'round';
 
-      const step = 2; // Pixels per data point
+      const step = 2;
       const len = dataPoints.current.length;
       
       for (let i = 0; i < len; i++) {
         const x = i * step; 
         const pointY = dataPoints.current[i];
-        const drawX = x; 
-        const drawY = centerY + pointY;
         
-        if (i === 0) {
-          ctx.moveTo(drawX, drawY);
-        } else {
-          ctx.lineTo(drawX, drawY);
-        }
+        // Glitch effect on X axis if fraud
+        const offsetX = isFraudulent && Math.random() > 0.8 ? (Math.random() - 0.5) * 10 : 0;
+        
+        if (i === 0) ctx.moveTo(x + offsetX, centerY + pointY);
+        else ctx.lineTo(x + offsetX, centerY + pointY);
       }
       ctx.stroke();
 
-      // 4. Scanline / Leading Dot (The "Head")
+      // Head Dot
       const lastX = (len - 1) * step;
       const lastY = centerY + dataPoints.current[len-1];
-      
       ctx.beginPath();
       ctx.fillStyle = '#fff';
       ctx.shadowBlur = 15;
-      ctx.shadowColor = '#fff';
-      ctx.arc(lastX, lastY, 2, 0, Math.PI * 2);
+      ctx.shadowColor = isFraudulent ? '#ff4b2b' : '#fff';
+      ctx.arc(lastX, lastY, isFraudulent ? 4 : 2, 0, Math.PI * 2);
       ctx.fill();
 
       frameId.current = requestAnimationFrame(render);
     };
-
     render();
+    return () => cancelAnimationFrame(frameId.current);
+  }, [isFraudulent]); // Re-bind if fraud state changes
 
-    return () => {
-      cancelAnimationFrame(frameId.current);
-    };
-  }, []);
+  // Helper
+  function getBurnAmountFromTx(tx: ParsedTransactionWithMeta | null): number {
+    if (!tx) return 0;
+    let totalBurn = 0;
+    // Top-Level
+    const instructions = tx.transaction?.message?.instructions || [];
+    for (const ix of instructions) {
+        if ('parsed' in ix && ix.parsed.type === "burn") {
+             totalBurn += (ix.parsed.info.amount / 1_000_000_000);
+        }
+    }
+    // Inner
+    const innerInstructions = tx.meta?.innerInstructions || [];
+    for (const inner of innerInstructions) {
+        for (const ix of inner.instructions) {
+             if ('parsed' in ix && ix.parsed.type === "burn") {
+                 totalBurn += (ix.parsed.info.amount / 1_000_000_000);
+             }
+        }
+    }
+    return totalBurn;
+  }
 
   return (
-    <div className="relative w-full h-[200px] bg-[#0b0b0e] rounded-xl overflow-hidden border border-[#222] shadow-[0_0_50px_-12px_rgba(0,255,157,0.2)]">
+    <div className={`relative w-full h-[200px] bg-[#0b0b0e] rounded-xl overflow-hidden border transition-colors duration-300 ${isFraudulent ? 'border-red-500 fraud-mode' : 'border-[#222] shadow-[0_0_50px_-12px_rgba(0,255,157,0.2)]'}`}>
       <canvas ref={canvasRef} className="w-full h-full block" />
       
       {/* Overlay UI */}
       <div className="absolute top-4 left-4 flex flex-col gap-1">
-        <div className={`flex items-center gap-2 text-xs font-bold tracking-widest uppercase ${isFlatlined ? 'text-red-500 animate-pulse' : 'text-[#00ff9d]'}`}>
-            <Activity size={14} className={isPulsing ? "animate-pulse" : ""} />
-            VITALITY FEED // {isConnected ? (isFlatlined ? "FLATLINING..." : "PULSE-LOCKED") : "SEARCHING..."}
+        <div className={`flex items-center gap-2 text-xs font-bold tracking-widest uppercase ${isFraudulent ? 'text-red-500 animate-pulse' : (isFlatlined ? 'text-red-500 animate-pulse' : 'text-[#00ff9d]')}`}>
+            {isFraudulent ? <ShieldAlert size={14} /> : <Activity size={14} className={isPulsing ? "animate-pulse" : ""} />}
+            
+            {isFraudulent ? "SECURITY BREACH: FRAUD DETECTED" : 
+             (isConnected ? (isFlatlined ? "FLATLINING..." : "PULSE-LOCKED") : "SEARCHING...")}
         </div>
         <div className="text-[#333] text-[10px] font-mono">
            KYTIN CORE ID: {walletAddress ? `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}` : "NULL"}
@@ -242,11 +281,11 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
       </div>
 
       <div className="absolute top-4 right-4 text-right">
-        <div className="text-[10px] text-gray-500 uppercase tracking-wider">Pulse Count</div>
-        <div className="text-2xl font-bold text-[#00ff9d] font-mono">{String(pulseCount).padStart(5, '0')}</div>
+        <div className={`text-[10px] uppercase tracking-wider ${isFraudulent ? 'text-red-500' : 'text-gray-500'}`}>Pulse Count</div>
+        <div className={`text-2xl font-bold font-mono ${isFraudulent ? 'text-red-500' : 'text-[#00ff9d]'}`}>{String(pulseCount).padStart(5, '0')}</div>
       </div>
       
-      {/* Grid Overlay for aesthetic */}
+      {/* Grid Overlay */}
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,255,157,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(18,255,157,0.03)_1px,transparent_1px)] bg-[size:20px_20px]" />
     </div>
   );
