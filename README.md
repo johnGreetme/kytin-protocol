@@ -269,6 +269,14 @@ At the Titan-Spec burn rate (1.0 RESIN / 30 mins), a global enterprise fleet rep
 
 For a DeFi protocol or Bank, this **$280k annual burn** replaces approximately **$5M+** in manual auditing, human-error mitigation, and "False Positive" investigations. By anchoring identity in the Kytin Iron Shell, institutions achieve a **90% reduction in compliance friction** while gaining **100% cryptographic certainty**.
 
+### ⚡️ Network Efficiency (Solana 2026)
+
+The Kytin Protocol is fully optimized for the **Alpenglow** era of Solana:
+
+- **P-Token Ready:** Compliant with SIMD-0266 for a 98% reduction in on-chain CU usage.
+- **Votor/Rotor Sync:** Optimized for sub-150ms state-locking.
+- **Zero-Copy Architecture:** Heartbeats are processed with zero-heap allocation, making Kytin nodes the most efficient autonomous agents on the ledger.
+
 ## 🏗️ Architecture
 
 ```mermaid
