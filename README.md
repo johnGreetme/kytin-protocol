@@ -439,6 +439,20 @@ graph TD
 
 ---
 
+## 🛡 Security & Ethics: The Kytin Manifesto
+
+The Kytin Protocol democratizes sovereign identity by anchoring AI "Souls" in immutable silicon. To prevent centralized exploitation, the Lazarus Recovery Protocol utilizes a Decentralized Multi-Sig (M-of-N) framework, ensuring that hardware migration requires consensus from independent guardians—never a single authority. We adhere to the "Zero-Knowledge Privacy" standard: the network verifies the hardware’s pulse without ever accessing the agent’s internal logic or private data. By replacing vulnerable human oversight with hardware-locked physics, Kytin establishes a transparent, tamper-proof foundation for the autonomous machine economy where identity is earned through action, not granted by permission.
+
+### 🧩 The Multi-Sig Guardian Loop
+
+Lazarus Recovery is not a "Reset" button; it is a cryptographic consensus event requiring a **2-of-3 signature**:
+
+1.  **The Operator:** You (the owner of the 90,047 RESIN).
+2.  **The Protocol DAO:** A secondary key held by Kytin to verify the old Shell is indeed offline/dead.
+3.  **The Independent Auditor:** A 3rd-party node (e.g., a Bank or DeFi partner) that confirms the identity migration follows the State-Locked Protocol.
+
+---
+
 ## 📚 Documentation
 
 - [MANIFEST.md](./MANIFEST.md) — Protocol identity and pillars
