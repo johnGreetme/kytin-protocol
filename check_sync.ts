@@ -31,5 +31,6 @@ export async function verifySync(rpcUrl: string = "http://localhost:8899"): Prom
 
 // If run directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-    verifySync().then(synced => process.exit(synced ? 0 : 1));
+    const targetUrl = process.argv[2];
+    verifySync(targetUrl).then(synced => process.exit(synced ? 0 : 1));
 }

@@ -392,42 +392,6 @@ For deep-level infrastructure inspection, use the native Solana toolset:
 - **`solana catchup --our-localhost`:平衡:** Checks local ledger parity.
 - **`solana gossip`:** Verifies communication within the validator network.
 
-## 🏗️ Architecture
-
-```mermaid
-graph TD
-    subgraph "Host Machine (Windows/Linux)"
-        A[🤖 OpenClaw Agent] -->|JSON-RPC| B(🔌 Kytin Bridge SDK)
-        B -->|HTTP:18789| C{🛡️ Kytin Sentinel Daemon}
-        C -->|/dev/tpm0| D[🔒 TPM 2.0 Chip]
-    end
-    
-    subgraph "External World"
-        C -->|Heartbeat / Sign| E((☁️ Solana Blockchain))
-        A -->|Verify Skill| F[📦 Clawhub Registry]
-    end
-
-    style C fill:#00ff9d,stroke:#333,stroke-width:2px,color:#000
-    style D fill:#333,stroke:#00ff9d,stroke-width:2px,color:#fff
-    style E fill:#9945FF,stroke:#333,stroke-width:2px,color:#fff
-```
-
-| Component     | Language   | Description                                 |
-| ------------- | ---------- | ------------------------------------------- |
-| **Sentinel**  | C++        | Background daemon managing the TPM          |
-| **Bridge**    | TypeScript | Connects OpenClaw to the Sentinel           |
-| **Dashboard** | Next.js    | Mission Control visualization               |
-| **Ledger**    | Solana     | Verifies hardware signatures and Resin burn |
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                    KYTIN PROTOCOL                           │
-├─────────────────────────────────────────────────────────────┤
-│  ┌───────────┐   ┌───────────┐   ┌───────────────────────┐  │
-│  │  OpenClaw │◄─►│  Bridge   │◄─►│  C++ Sentinel         │  │
-│  │   Agent   │   │ (TS SDK)  │   │  - TPM 2.0 Interface  │  │
-│  └───────────┘   └───────────┘   │  - Policy Engine      │  │
-│                                   │  - Resin Tank         │  │
 │                                   └───────────┬───────────┘  │
 │                                               │              │
 │                                   ┌───────────▼───────────┐  │
