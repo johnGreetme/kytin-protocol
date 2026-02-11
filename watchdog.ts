@@ -3,6 +3,8 @@ import { Connection, PublicKey } from "@solana/web3.js";
 const connection = new Connection("https://api.devnet.solana.com", "confirmed");
 const TITAN_BURN_MIN = 10.0; // The Law
 
+const ANNUAL_TITAN_BURN = 175200; // 10.0 * 2 * 24 * 365
+
 async function monitorNode(nodePubKey: string) {
     console.log(`👮 WATCHDOG ACTIVE: Monitoring ${nodePubKey}`);
     console.log(`TYPE: npx ts-node watchdog.ts <PUBKEY> to run separate instance`);
@@ -27,6 +29,7 @@ async function monitorNode(nodePubKey: string) {
                         // Here you would trigger the Dashboard to show "BANNED"
                     } else {
                         console.log(`✅ VALID HEARTBEAT: ${burnAmount.toFixed(4)} RESIN burned.`);
+                        console.log(`[PROJECTION] This node is on track to burn ${ANNUAL_TITAN_BURN.toLocaleString()} RESIN this year.`);
                     }
                 })
                 .catch(err => {

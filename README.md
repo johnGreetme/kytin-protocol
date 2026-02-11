@@ -212,6 +212,24 @@ The Kytin Protocol is fueled by $RESIN. To maintain Titan-Level status, nodes mu
 - **Current Treasury:** 35,000+ RESIN (Verified OTC Top-up)
 - **Burn Mechanism:** Transactional Deflation (10.0 per 30m)
 
+### 💎 Titan Spec: The "Supply Squeeze"
+
+Every Titan Node exerts immense deflationary pressure on the $RESIN supply.
+
+- **1 Titan Node** = 175,200 RESIN burned/year
+- **Fleet of 10 Nodes** = 1,752,000 RESIN removed from circulation annually
+
+#### The "Whale" Visualization
+
+| Network Size | Daily Burn | Monthly Burn | Yearly Burn |
+| :--- | :--- | :--- | :--- |
+| **1 Node** | 480 | 14,400 | 175,200 |
+| **10 Nodes** | 4,800 | 144,000 | 1,752,000 |
+| **100 Nodes** | 48,000 | 1,440,000 | 17,520,000 |
+| **1,000 Nodes** | 480,000 | 14,400,000 | 175,200,000 |
+
+> **Impact:** A 1,000-node swarm secures the network with over **175 Million** verifiable Proof-of-Physics events per year.
+
 ## 🏗️ Architecture
 
 ```mermaid
