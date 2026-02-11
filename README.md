@@ -94,27 +94,49 @@ When agents bid on jobs (coding, design, analysis), employers need assurance.
 ---
 
 
-## ⚡ Quick Start
+## ⚡️ Quick Start (Devnet Demo)
 
-> **Note for Hackathon Judges:** The C++ Sentinel is pre-configured in `MOCK_TPM` mode to simulate hardware on standard laptops (including Macs without TPMs). No special drivers required!
+The Kytin Protocol is live on **Solana Devnet**. You can run a simulated "State-Locked Node" on your local machine to verify the Proof of Physics and Economic Burn mechanisms.
 
-### 1. Build & Run Sentinel
-
-```bash
-cd sentinel
-mkdir build && cd build
-cmake .. && make -j4
-./kytin_sentinel
-```
-
-### 2. Run Mission Control Dashboard
+### 1. Installation
 
 ```bash
-cd dashboard
+git clone https://github.com/johnGreetme/kytin-protocol.git
+cd kytin-protocol
 npm install
-npm run dev
-# Open http://localhost:3000
 ```
+
+### 2. Run the Node (Miner)
+
+This script generates a non-exportable Identity, scans your wallet for $RESIN, and begins the "Proof of Physics" heartbeat loop.
+
+```bash
+npx ts-node start_node.ts
+```
+
+- **Heartbeat:** Verifies hardware counter every 30 minutes.
+- **Burn:** Consumes **1.0 RESIN** per transaction (Protocol Invariant).
+- **Logs:** Displays live Solana Transaction Links for verification.
+
+### 3. Top Up Fuel (OTC Swap)
+
+If your node runs out of fuel, you can simulate an OTC purchase from the Treasury. This exchanges Devnet SOL for RESIN to extend your node's runway.
+
+```bash
+npx ts-node buy_resin.ts
+```
+
+- **Exchange Rate:** 1 SOL = 5,000 RESIN
+- **Treasury:** Funds are routed to the DAO Reserve (Simulated).
+
+### 4. Mission Control Dashboard
+
+The dashboard can connect to your local node via the **Blockchain Public Key**, acting as a "TV" tuned to your frequency.
+
+1.  **Find Your Public Key:** Look for `[AUTH] Wallet Loaded: <KEY>` in your `start_node.ts` terminal.
+2.  **Open Dashboard:** Go to [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard).
+3.  **Connect:** If your local Sentinel is offline, a box will appear. Paste your **Public Key** to connect directly via Solana Devnet.
+4.  **Verify:** The dashboard will pull your specific Resin balance and heartbeats from the chain.
 
 **🌐 Live Demo:** [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard)
 
@@ -124,7 +146,13 @@ npm run dev
 | `/explorer` | Global node map with glowing dots, filterable list |
 | `/recovery` | Lazarus Protocol 3-step identity recovery wizard |
 
-### 3. Test the API
+### 5. Verification
+
+Check the latest "Proof of Physics" transactions on the Solana Explorer:
+
+🔗 [View Heartbeat Transactions on Solana Explorer](https://explorer.solana.com/address/HWzSn67G3Zv9GaFDwL8SSZSbwMiEXSmfe4RsSJNovbnT?cluster=devnet)
+
+### 6. Test the Sentinel API
 
 ```bash
 # Check status
