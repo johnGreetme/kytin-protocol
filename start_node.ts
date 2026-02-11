@@ -88,7 +88,7 @@ async function runHeartbeat(connection: Connection, wallet: Keypair, mint: Publi
         const accountInfo = await getAccount(connection, ata.address);
         const currentBalance = Number(accountInfo.amount) / (10 ** DECIMALS);
 
-        console.log(`[NET] 📡 Verified: https://explorer.solana.com/tx/${signature.slice(0,15)}...`);
+        console.log(`[NET] 📡 Verified: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
         console.log(`[ECO] 🔥 Burned 1.0 RESIN | ⛽️ REMAINING: ${currentBalance.toFixed(2)}`);
         
     } catch (err) {
