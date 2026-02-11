@@ -205,6 +205,13 @@ curl -X POST http://localhost:18789/migrate \
 
 ---
 
+## 💎 Tokenomics & Liquidity
+
+The Kytin Protocol is fueled by $RESIN. To maintain Titan-Level status, nodes must maintain a high liquidity reserve to cover the 10.0 RESIN/heartbeat tax.
+
+- **Current Treasury:** 35,000+ RESIN (Verified OTC Top-up)
+- **Burn Mechanism:** Transactional Deflation (10.0 per 30m)
+
 ## 🏗️ Architecture
 
 ```mermaid
