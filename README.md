@@ -62,6 +62,32 @@ A shell without a living creature inside is just a carcass.
 
 ---
 
+## 🧬 Vitality Stream & Analytics
+
+The Kytin Mission Control provides a real-time, medical-grade EKG stream of your hardware's health.
+
+![Kytin Mission Control](./docs/assets/mission-control.png)
+
+### 🛡 Verified Titan Burn
+Every heartbeat is a cryptographic "Proof of Physics" event, burning exactly 10.0 RESIN as an anti-spam tax.
+
+![Titan Burn Receipt](./docs/assets/burn-instruction.png)
+
+### 🌍 Global State & Recovery
+
+<table>
+  <tr>
+    <td><b>Global Explorer</b></td>
+    <td><b>Lazarus Recovery</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/assets/global-explorer.png" width="400"></td>
+    <td><img src="./docs/assets/lazarus-protocol.jpg" width="400"></td>
+  </tr>
+</table>
+
+---
+
 ## 🚨 The Problem
 
 OpenClaw agents hold private keys in memory.
@@ -136,7 +162,7 @@ The dashboard can connect to your local node via the **Blockchain Public Key**, 
 1.  **Find Your Public Key:** Look for `[AUTH] Wallet Loaded: <KEY>` in your `start_node.ts` terminal.
 2.  **Open Dashboard:** Go to [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard).
 3.  **Connect:** If your local Sentinel is offline, a box will appear. Paste your **Public Key** to connect directly via Solana Devnet.
-4.  **Verify:** The dashboard will pull your specific Resin balance and heartbeats from the chain.
+4.  **Verify:** Watch the **Vitality Stream** visualize your live Proof of Physics heartbeats on the blockchain.
 
 **🌐 Live Demo:** [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard)
 

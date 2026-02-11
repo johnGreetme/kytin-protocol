@@ -18,13 +18,15 @@ import * as os from 'os';
 import * as path from 'path';
 
 // --- CONFIGURATION ---
+const __dirname = process.cwd();
+
 const RPC_URL = "https://api.devnet.solana.com";
 const HEARTBEAT_INTERVAL_MS = 10000; // 10 Seconds (Demo Speed)
 // const HEARTBEAT_INTERVAL_MS = 1800000; // 30 Minutes (Mainnet Speed)
 
 // --- PROTOCOL CONSTANTS ---
 // NOTE: On Mainnet, this is enforced by the Anchor Program.
-const BURN_AMOUNT = 1.0; 
+const BURN_AMOUNT = 10.0; // The Titan Tax 
 const DECIMALS = 9;
 
 // --- MOCK HARDWARE STATE ---
@@ -34,6 +36,36 @@ const deviceId = "RPI-DEV-001";
 async function main() {
     console.clear();
     console.log("🦞 KYTIN PROTOCOL: STATE-LOCKED NODE");
+    
+    // --- SINGLETON LOCK ---
+    const lockFile = path.join(__dirname, 'node.lock');
+    try {
+        if (fs.existsSync(lockFile)) {
+            const pid = parseInt(fs.readFileSync(lockFile, 'utf8'));
+            try {
+                process.kill(pid, 0); // Check if process exists
+                console.error(`\n❌ CRITICAL: Instance already running (PID: ${pid}).`);
+                console.error("   Terminating this instance to prevent conflicts.");
+                console.error("   Run 'killall node' if you believe this is an error.\n");
+                process.exit(1);
+            } catch (e) {
+                // Process not found, stale lock
+                console.log("⚠️ Cleared stale lock file.");
+            }
+        }
+        fs.writeFileSync(lockFile, process.pid.toString());
+    } catch (err) {
+        console.error("Lock error:", err);
+    }
+
+    // Cleanup on generic exit
+    const cleanup = () => {
+        try { if (fs.existsSync(lockFile)) fs.unlinkSync(lockFile); } catch {}
+        process.exit();
+    };
+    process.on('SIGINT', cleanup);
+    process.on('SIGTERM', cleanup);
+    // ---------------------
     
     const connection = new Connection(RPC_URL, "confirmed");
     const homeDir = os.homedir();
@@ -88,8 +120,8 @@ async function runHeartbeat(connection: Connection, wallet: Keypair, mint: Publi
         const accountInfo = await getAccount(connection, ata.address);
         const currentBalance = Number(accountInfo.amount) / (10 ** DECIMALS);
 
-        console.log(`[NET] 📡 Verified: https://explorer.solana.com/tx/${signature.slice(0,15)}...`);
-        console.log(`[ECO] 🔥 Burned 1.0 RESIN | ⛽️ REMAINING: ${currentBalance.toFixed(2)}`);
+        console.log(`[NET] 📡 Verified: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+        console.log(`[ECO] 🔥 Burned ${BURN_AMOUNT} RESIN | ⛽️ REMAINING: ${currentBalance.toFixed(2)}`);
         
     } catch (err) {
         console.error(`[ERROR] Heartbeat failed: ${err}`);

@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ResinTank } from '@/components/ResinTank';
 import { SentinelMap } from '@/components/SentinelMap';
 import { HeartbeatPulse } from '@/components/HeartbeatPulse';
+import { VitalityStream } from '@/components/VitalityStream';
 import { kytinAPI, AgentState, SentinelStatus, AgentDeadError, DeadAgentError } from '@/lib/kytin-api';
 import { getDevnetStatus, isValidAddress } from '@/lib/solana-api';
 
@@ -210,18 +211,28 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Heartbeat */}
+            {/* Heartbeat / Vitality Stream */}
             <div className="lg:col-span-2">
               <h2 className="text-sm font-medium text-zinc-400 mb-3 flex items-center gap-2">
                 <Activity className="w-4 h-4" />
-                HEARTBEAT MONITOR
+                {isDevnetMode ? 'VITALITY STREAM' : 'HEARTBEAT MONITOR'}
               </h2>
-              <HeartbeatPulse
-                isActive={agentState === 'online'}
-                resinRemaining={status?.resin.balance}
-                lastSignature={lastSignature ?? undefined}
-                onPulse={sendHeartbeat}
-              />
+              {isDevnetMode ? (
+                <VitalityStream 
+                  walletAddress={walletAddress} 
+                  onPulse={() => {
+                    // Refresh stats when pulse detected
+                    fetchStatus();
+                  }} 
+                />
+              ) : (
+                <HeartbeatPulse
+                  isActive={agentState === 'online'}
+                  resinRemaining={status?.resin.balance}
+                  lastSignature={lastSignature ?? undefined}
+                  onPulse={sendHeartbeat}
+                />
+              )}
             </div>
 
             {/* Info Panel */}
