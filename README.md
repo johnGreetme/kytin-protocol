@@ -82,7 +82,7 @@ Every heartbeat is a cryptographic "Proof of Physics" event, burning exactly 10.
   </tr>
   <tr>
     <td><img src="./docs/assets/global-explorer.png" width="400"></td>
-    <td><img src="./docs/assets/lazarus-protocol.jpg" width="400"></td>
+    <td><img src="./docs/assets/lazarus-protocol.png" width="400"></td>
   </tr>
 </table>
 
