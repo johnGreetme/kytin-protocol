@@ -2,7 +2,6 @@
 **The "Iron Shell" for OpenClaw Agents.**
 
 <div align="center">
-  <img src="docs/assets/dashboard-hero.png" alt="Kytin Mission Control" width="100%" />
   <p>
     <b>The Hardware Root of Trust for the Machine Economy.</b><br>
     <i>State-Locked Protocol™ • TPM 2.0 Identity • Resin DePIN Economy</i>
