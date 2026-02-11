@@ -8,7 +8,9 @@ import Link from 'next/link';
 import { ResinTank } from '@/components/ResinTank';
 import { SentinelMap } from '@/components/SentinelMap';
 import { HeartbeatPulse } from '@/components/HeartbeatPulse';
+import { VitalityStream } from '@/components/VitalityStream';
 import { kytinAPI, AgentState, SentinelStatus, AgentDeadError, DeadAgentError } from '@/lib/kytin-api';
+import { getDevnetStatus, isValidAddress } from '@/lib/solana-api';
 
 export default function Dashboard() {
   const [agentState, setAgentState] = useState<AgentState>('offline');
@@ -17,29 +19,43 @@ export default function Dashboard() {
   const [lastSignature, setLastSignature] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isDevnetMode, setIsDevnetMode] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [inputAddress, setInputAddress] = useState('');
 
   // Fetch status
   const fetchStatus = useCallback(async () => {
     try {
-      const result = await kytinAPI.getAgentState();
-      setAgentState(result.state);
-      
-      if (result.state === 'online' && result.data) {
-        setStatus(result.data as SentinelStatus);
+      if (isDevnetMode && walletAddress) {
+        const result = await getDevnetStatus(walletAddress);
+        setAgentState('online');
+        setStatus(result);
         setDeadInfo(null);
-      } else if (result.state === 'dead' && result.data) {
-        setDeadInfo(result.data as DeadAgentError);
-        setStatus(null);
       } else {
-        setStatus(null);
-        setDeadInfo(null);
+        const result = await kytinAPI.getAgentState();
+        setAgentState(result.state);
+        
+        if (result.state === 'online' && result.data) {
+          setStatus(result.data as SentinelStatus);
+          setDeadInfo(null);
+        } else if (result.state === 'dead' && result.data) {
+          setDeadInfo(result.data as DeadAgentError);
+          setStatus(null);
+        } else {
+          setStatus(null);
+          setDeadInfo(null);
+        }
       }
     } catch (e) {
-      setAgentState('offline');
+       // If Devnet fetch fails, we stay in devnet mode but maybe show error? 
+       // For now, consistent behavior:
+      if (!isDevnetMode) {
+          setAgentState('offline');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isDevnetMode, walletAddress]);
 
   // Initial load and polling
   useEffect(() => {
@@ -48,10 +64,25 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, [fetchStatus]);
 
+  // Connect to Devnet
+  const handleConnect = () => {
+    if (isValidAddress(inputAddress)) {
+      setWalletAddress(inputAddress);
+      setIsDevnetMode(true);
+      setIsLoading(true);
+      fetchStatus();
+    }
+  };
+
   // Send heartbeat
   const sendHeartbeat = async () => {
     if (agentState !== 'online') return;
     
+    if (isDevnetMode) {
+        alert("Cannot sign heartbeats in Read-Only Devnet Mode. Run the local node!");
+        return;
+    }
+
     try {
       setIsAnimating(true);
       const result = await kytinAPI.heartbeat('ECO');
@@ -180,18 +211,28 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Heartbeat */}
+            {/* Heartbeat / Vitality Stream */}
             <div className="lg:col-span-2">
               <h2 className="text-sm font-medium text-zinc-400 mb-3 flex items-center gap-2">
                 <Activity className="w-4 h-4" />
-                HEARTBEAT MONITOR
+                {isDevnetMode ? 'VITALITY STREAM' : 'HEARTBEAT MONITOR'}
               </h2>
-              <HeartbeatPulse
-                isActive={agentState === 'online'}
-                resinRemaining={status?.resin.balance}
-                lastSignature={lastSignature ?? undefined}
-                onPulse={sendHeartbeat}
-              />
+              {isDevnetMode ? (
+                <VitalityStream 
+                  walletAddress={walletAddress} 
+                  onPulse={() => {
+                    // Refresh stats when pulse detected
+                    fetchStatus();
+                  }} 
+                />
+              ) : (
+                <HeartbeatPulse
+                  isActive={agentState === 'online'}
+                  resinRemaining={status?.resin.balance}
+                  lastSignature={lastSignature ?? undefined}
+                  onPulse={sendHeartbeat}
+                />
+              )}
             </div>
 
             {/* Info Panel */}
@@ -249,6 +290,27 @@ export default function Dashboard() {
                 <div className="text-center py-8">
                   <p className="text-zinc-500">No connection to Sentinel</p>
                   <p className="text-xs text-zinc-600 mt-2">Run: ./kytin_sentinel</p>
+                  
+                  <div className="mt-8 pt-6 border-t border-zinc-800">
+                    <p className="text-sm font-medium text-emerald-400 mb-3">OR CONNECT VIA DEVNET</p>
+                    <div className="flex gap-2 max-w-sm mx-auto">
+                        <input 
+                        type="text" 
+                        placeholder="Enter Wallet Address..." 
+                        className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none transition-colors"
+                        value={inputAddress}
+                        onChange={(e) => setInputAddress(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleConnect()}
+                        />
+                        <button 
+                        onClick={handleConnect}
+                        disabled={!inputAddress}
+                        className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-lg text-sm hover:bg-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                        Connect
+                        </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
