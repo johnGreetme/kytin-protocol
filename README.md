@@ -33,6 +33,44 @@ While others are building "Apps" (4G), we are building the **Physical Layer** (6
 
 ---
 
+## 🛡 Architecture: The Sovereign Trust Stack
+
+```mermaid
+graph TD
+    %% Define Nodes
+    TPM[("🔐 Hardware Root (TPM 2.0)")]
+    GK["⚖️ THE GATEKEEPERS (Gated Sync)"]
+    CB{"🛑 CIRCUIT BREAKER"}
+    SLP["🚀 State-Locked Protocol (SLP)"]
+    SOL(("⛓ SOLANA LEDGER (Alpenglow)"))
+
+    %% Define Flow
+    TPM -->|Signed Heartbeat| GK
+    GK -->|Pass: < 150 Slots Behind| CB
+    GK -->|Fail: Out of Sync| HIBERNATE[("💤 Hibernation Mode")]
+    
+    CB -->|Health: Green| SLP
+    CB -->|Health: Drop/Drift| KILL["🔌 SIGTERM (Instant Kill)"]
+    
+    SLP -->|1.0 RESIN Burn| SOL
+    SOL -.->|Verified by| WATCHDOG["👮 WATCHDOG (Observer)"]
+
+    %% Styling
+    style TPM fill:#1a1a1a,stroke:#333,stroke-width:2px,color:#fff
+    style SOL fill:#9945FF,stroke:#14F195,stroke-width:2px,color:#fff
+    style CB fill:#ff4d4d,stroke:#000,stroke-width:2px
+    style GK fill:#4d94ff,stroke:#000,stroke-width:2px
+```
+
+### Diagram Breakdown for Judges
+
+1. **Hardware Core:** The TPM generates an uncopyable signature. No internet, no problem—the "Soul" stays in the silicon.
+2. **The Gatekeeper:** Sitting between the TPM and the Web, it ensures the node is synced within 150 slots of the cluster tip. If the network is lagging, it prevents "Stale Burns."
+3. **The Circuit Breaker:** The system's immune system. At the first sign of an RPC timeout or "Identity Drift," it triggers an instant SIGTERM to protect your **90,047 RESIN** and the TPM state.
+4. **The Settlement Layer:** The final 1.0 RESIN burn is settled on Solana 2026 (Alpenglow) via the P-token standard, providing a 98% reduction in on-chain Compute Units.
+
+---
+
 ## 🧬 Origin Story: The Biology of Kytin
 
 The name is derived from **Chitin** (*KY-tin*), the biopolymer that forms the exoskeleton of lobsters and crabs. In nature, a soft creature cannot survive without a hard shell. In the digital world, a soft AI agent cannot survive without hardware security.
