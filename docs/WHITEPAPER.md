@@ -90,3 +90,29 @@ To mitigate hardware failure (e.g., motherboard destruction) where the TPM canno
 
 *State-Locked Protocol™ is a patent-pending technology.*
 
+---
+
+## 4. Hardware Security FAQ
+
+### Q: What is a side-channel attack, and why does it matter for AI agents?
+**A:** Unlike traditional hacks that target mathematical weaknesses in code, a side-channel attack exploits physical information leaks from the hardware itself. Attackers may monitor power consumption, electromagnetic radiation, or even the precise time it takes for a chip to sign a transaction to deduce secret keys bit by bit. For an autonomous AI agent, a successful side-channel attack means its unique identity could be cloned, allowing an attacker to impersonate the "Shell".
+
+### Q: How does the Kytin TPM 2.0 protect against these physical leaks?
+**A:** The Kytin Protocol leverages **Discrete TPMs (dTPMs)**, which are dedicated, tamper-resistant semiconductor packages with higher physical security certification (e.g., FIPS-140 Level 3) than software-based alternatives.
+
+- **Constant-Time Cryptography:** Kytin-compliant TPMs are designed to perform operations like signing heartbeats with secret-independent execution times, mitigating timing analysis.
+- **Masking and Blinding:** The hardware applies internal "noise" or masking to its internal operations, ensuring that power usage patterns do not correlate directly with the secret keys.
+- **Shielded Locations:** Keys exist only within Shielded Locations on the chip; they are never disclosed to the operating system, protecting them even if the agent's software environment is fully compromised.
+
+### Q: Can a human "brute-force" the Kytin hardware?
+**A:** No. TPM 2.0 includes anti-hammering protection designed specifically to prevent brute-force and dictionary attacks.
+
+- **Lockout Logic:** If a local attacker attempts to authorize a key with incorrect values too many times, the TPM enters a global lockout state.
+- **Time-Gated Recovery:** The TPM is configured to "forget" failures slowly (e.g., one failure every 10 minutes), making rapid-fire guessing mathematically impossible.
+
+### Q: Is the Kytin "Shell" vulnerable to bus-sniffing?
+**A:** Standard TPM communications over SPI/LPC buses can be vulnerable to signal "sniffing". To defend against this, Kytin recommends:
+
+- **Parameter Encryption:** Enabling encrypted communication between the CPU and the TPM to prevent cleartext keys from being captured by logic analyzers.
+- **Sealing with PCRs:** Binding (sealing) keys to specific hardware measurements (Platform Configuration Registers). If the system detects any unauthorized hardware changes, the TPM refuses to release the "Titan" signing keys.
+
