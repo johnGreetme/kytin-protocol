@@ -9,7 +9,7 @@ export async function verifySync(rpcUrl: string = "http://localhost:8899"): Prom
     const connection = new Connection(rpcUrl, "confirmed");
     
     try {
-        const { value: epochInfo } = await connection.getEpochInfo();
+        const epochInfo = await connection.getEpochInfo();
         const slot = await connection.getSlot();
         
         const drift = epochInfo.absoluteSlot - slot;
