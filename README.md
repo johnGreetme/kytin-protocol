@@ -180,11 +180,12 @@ Experience the unified Kytin "Command Center" in a single terminal.
 npm install
 
 # 2. Launch the Titan Control Center
-# This runs the Node [TITAN] and the Verifier [WATCHDOG] concurrently.
+# This runs Sync Verification, the Node [TITAN], and the Verifier [WATCHDOG].
 npx ts-node titan.ts
 ```
 
-#### What you will see:
+#### what you will see:
+- **[SYS]** Pre-flight sync verification (Check drift against cluster tip).
 - **[TITAN]** logs show hardware signatures and on-chain heartbeats.
 - **[WATCHDOG]** logs show real-time verification and annual burn projections.
 
@@ -299,8 +300,13 @@ The Kytin Protocol is fully optimized for the **Alpenglow** era of Solana:
 
 - **P-Token Ready:** Compliant with SIMD-0266 for a 98% reduction in on-chain CU usage.
 - **Votor/Rotor Sync:** Optimized for sub-150ms state-locking.
-- **Zero-Copy Architecture:** Heartbeats are processed with zero-heap allocation, making Kytin nodes the most efficient autonomous agents on the ledger.
 - **Unified Oversight:** Compatible with the `titan.ts` management suite for institutional fleet monitoring.
+- **Sync Integrity:** Powered by `check_sync.ts` for cluster-tip parity verification.
+
+### 📶 Network Diagnostic Commands
+For deep-level infrastructure inspection, use the native Solana toolset:
+- **`solana catchup --our-localhost`:平衡:** Checks local ledger parity.
+- **`solana gossip`:** Verifies communication within the validator network.
 
 ## 🏗️ Architecture
 

@@ -30,9 +30,29 @@ async function main() {
     } catch (e) {}
 
     console.log(`[SYS] Identity: ${pubKey}`);
+    console.log("[SYS] Performing Pre-Flight Sync Check...");
+
+    // 2. Wait for Sync
+    const { verifySync } = await import("./check_sync.ts");
+    let isSynced = false;
+    let attempts = 0;
+    
+    while (!isSynced && attempts < 5) {
+        isSynced = await verifySync("https://api.devnet.solana.com"); // Checking Devnet sync
+        if (!isSynced) {
+            attempts++;
+            console.log(`[SYS] Waiting for cluster sync (Attempt ${attempts}/5)...`);
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+    }
+
+    if (!isSynced) {
+        console.log("⚠️ WARNING: Cluster sync not reached, but proceeding for demo purposes...");
+    }
+
     console.log("[SYS] Spawning Execution & Verification Layers...\n");
 
-    // 2. Spawn Processes
+    // 3. Spawn Processes
     const node = spawn("npx", ["ts-node", "start_node.ts"], { stdio: ["inherit", "pipe", "pipe"] });
     const watchdog = spawn("npx", ["ts-node", "watchdog.ts", pubKey], { stdio: ["inherit", "pipe", "pipe"] });
 
