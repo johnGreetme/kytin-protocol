@@ -205,6 +205,16 @@ curl -X POST http://localhost:18789/migrate \
   -H "Content-Type: application/json" \
   -d '{"child_key":"NEW_MACHINE_PUBLIC_KEY"}'
 ```
+---
+
+## 🤖 Agent Integration (OpenClaw)
+
+To equip your AI agent with the "Iron Shell", you must install the Kytin Skill.
+
+1. **Locate the Skill File:** [`bridge/SKILL.md`](./bridge/SKILL.md)
+2. **Install:** Copy this file into your agent's `skills/` directory or system prompt.
+3. **Verify:** Ask your agent: *"What is your hardware status?"*
+   - **Response:** *"I am running on a Kytin Sentinel (Titan-Class). My TPM is active and my Resin Tank is at 99%."*
 
 ---
 
