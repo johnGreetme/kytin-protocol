@@ -10,6 +10,7 @@ import {
     getOrCreateAssociatedTokenAccount, 
     mintTo, 
     createBurnInstruction, 
+    createTransferInstruction,
     TOKEN_PROGRAM_ID,
     getAccount
 } from "@solana/spl-token";
@@ -26,7 +27,10 @@ const HEARTBEAT_INTERVAL_MS = 10000; // 10 Seconds (Demo Speed)
 
 // --- PROTOCOL CONSTANTS ---
 // NOTE: On Mainnet, this is enforced by the Anchor Program.
-const BURN_AMOUNT = 10.0; // The Titan Tax 
+const TOTAL_HEARTBEAT_COST = 1.0; 
+const BURN_AMOUNT = 0.8; 
+const TREASURY_TRANSFER = 0.2; 
+const TREASURY_PUBKEY = new PublicKey("EXwgowJ1bozQNp3GjsoLkYkPGMce8xHdmhbhEnZRCavZ"); // Kytin DAO Treasury
 const DECIMALS = 9;
 
 // --- MOCK HARDWARE STATE ---
@@ -109,8 +113,29 @@ async function runHeartbeat(connection: Connection, wallet: Keypair, mint: Publi
             wallet.publicKey
         );
 
+        const treasuryAta = await getOrCreateAssociatedTokenAccount(
+            connection,
+            wallet,
+            mint,
+            TREASURY_PUBKEY,
+            true // allowOwnerOffCurve
+        );
+
         const tx = new Transaction().add(
-            createBurnInstruction(ata.address, mint, wallet.publicKey, BURN_AMOUNT * (10 ** DECIMALS))
+            // 80% Permanent Burn
+            createBurnInstruction(
+                ata.address, 
+                mint, 
+                wallet.publicKey, 
+                BURN_AMOUNT * (10 ** DECIMALS)
+            ),
+            // 20% Treasury Tax
+            createTransferInstruction(
+                ata.address,
+                treasuryAta.address,
+                wallet.publicKey,
+                TREASURY_TRANSFER * (10 ** DECIMALS)
+            )
         );
 
         const signature = await sendAndConfirmTransaction(connection, tx, [wallet]);
@@ -121,7 +146,8 @@ async function runHeartbeat(connection: Connection, wallet: Keypair, mint: Publi
         const currentBalance = Number(accountInfo.amount) / (10 ** DECIMALS);
 
         console.log(`[NET] 📡 Verified: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
-        console.log(`[ECO] 🔥 Burned ${BURN_AMOUNT} RESIN | ⛽️ REMAINING: ${currentBalance.toFixed(2)}`);
+        console.log(`[ECO] 🔄 Split: ${BURN_AMOUNT} Burned | ${TREASURY_TRANSFER} Treasury`);
+        console.log(`[ECO] ⛽️ REMAINING: ${currentBalance.toFixed(2)} RESIN`);
         
     } catch (err) {
         console.error(`[ERROR] Heartbeat failed: ${err}`);

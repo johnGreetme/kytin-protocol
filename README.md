@@ -232,41 +232,42 @@ To equip your AI agent with the "Iron Shell", you must install the Kytin Skill.
 The Kytin Protocol is fueled by $RESIN. To maintain Titan-Level status, nodes must maintain a high liquidity reserve to cover the 10.0 RESIN/heartbeat tax.
 
 - **Current Treasury:** 35,000+ RESIN (Verified OTC Top-up)
-- **Burn Mechanism:** Transactional Deflation (10.0 per 30m)
+- **Burn Mechanism:** Transactional Deflation (1.0 total per 30m)
+- **Split:** 80% Burn / 20% Treasury
 
 ### 💎 Titan Spec: The "Supply Squeeze"
 
 Every Titan Node exerts immense deflationary pressure on the $RESIN supply.
 
-- **1 Titan Node** = 175,200 RESIN burned/year
-- **Fleet of 10 Nodes** = 1,752,000 RESIN removed from circulation annually
+- **1 Titan Node** = 17,520 RESIN burned/year
+- **Fleet of 10 Nodes** = 175,200 RESIN removed from circulation annually
 
 #### The "Whale" Visualization
 
 | Network Size | Daily Burn | Monthly Burn | Yearly Burn |
 | :--- | :--- | :--- | :--- |
-| **1 Node** | 480 | 14,400 | 175,200 |
-| **10 Nodes** | 4,800 | 144,000 | 1,752,000 |
-| **100 Nodes** | 48,000 | 1,440,000 | 17,520,000 |
-| **1,000 Nodes** | 480,000 | 14,400,000 | 175,200,000 |
+| **1 Node** | 48 | 1,440 | 17,520 |
+| **10 Nodes** | 480 | 14,400 | 175,200 |
+| **100 Nodes** | 4,800 | 144,000 | 1,752,000 |
+| **1,000 Nodes** | 48,000 | 1,440,000 | 17,520,000 |
 
 > **Impact:** A 1,000-node swarm secures the network with over **175 Million** verifiable Proof-of-Physics events per year.
 
 #### Institutional Scale: The 1,000-Node "Sovereign" Fleet
 
-At the Titan-Spec burn rate (10 RESIN / 30 mins), a global enterprise fleet represents the following economic commitment:
+At the Titan-Spec burn rate (1.0 RESIN / 30 mins), a global enterprise fleet represents the following economic commitment:
 
 | Period | RESIN Burn | Total Cost (USD) | Equivalent Infrastructure |
 | :--- | :--- | :--- | :--- |
-| **Daily** | 480,000 | $7,680 | ~100 High-Compute Cloud Instances |
-| **Monthly** | 14,400,000 | $230,400 | Mid-Sized Compliance Department |
-| **Yearly** | 175,200,000 | $2,803,200 | Tier-1 Bank Audit Infrastructure |
+| **Daily** | 48,000 | $768 | ~10 High-Compute Cloud Instances |
+| **Monthly** | 1,440,000 | $23,040 | Specialized Compliance Expert |
+| **Yearly** | 17,520,000 | $280,320 | Advanced Audit Infrastructure |
 
 > *Note: Calculations based on 1 RESIN ≈ $0.016 USD (OTC Institutional Rate).*
 
 #### The ROI of "Silicon over Staff"
 
-For a DeFi protocol or Bank, this **$2.8M annual burn** replaces approximately **$25M+** in manual auditing, human-error mitigation, and "False Positive" investigations. By anchoring identity in the Kytin Iron Shell, institutions achieve a **90% reduction in compliance friction** while gaining **100% cryptographic certainty**.
+For a DeFi protocol or Bank, this **$280k annual burn** replaces approximately **$5M+** in manual auditing, human-error mitigation, and "False Positive" investigations. By anchoring identity in the Kytin Iron Shell, institutions achieve a **90% reduction in compliance friction** while gaining **100% cryptographic certainty**.
 
 ## 🏗️ Architecture
 
