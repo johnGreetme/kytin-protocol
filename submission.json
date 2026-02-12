@@ -1,0 +1,17 @@
+{
+  "name": "Kytin Protocol",
+  "handle": "SLP-Zero-Prime",
+  "repoLink": "https://github.com/johnGreetme/kytin-protocol.git",
+  "description": "The decentralized hardware root-of-trust for Sovereign AI Agents, anchoring digital identity to physical silicon via the Resin Token.",
+  "solanaIntegration": "Submits SPL token burn and transfer instructions via @solana/web3.js and @solana/spl-token to record hardware heartbeats on Devnet (SIMD-0266 ready). Reads epoch and slot info via JSON-RPC to maintain cluster-tip parity.",
+  "problemStatement": "AI Agents currently lack a verifiable, on-chain identity. They run in ephemeral cloud environments where they cannot prove their physical persistence or operational integrity. This creates a 'Trust Gap'—a remote agent cannot sign high-value transactions or participate in DePIN markets because it cannot prove it isn't a sybil attack or a spoofed script. The industry needs a standardized 'Proof of Physics' protocol, not just more software sandboxes.",
+  "technicalApproach": "We developed the Kytin Protocol, a hardware-agnostic identity standard that anchors AI Agents to any TPM 2.0-enabled device. (1) The Protocol (IP): A proprietary Rust driver that interfaces with standard TPM chips to generate non-exportable, hardware-sealed keys. (2) The Token (Resin): A Solana-native SPL token that incentivizes uptime. Agents broadcast a 'Lazarus Heartbeat' to verify their physical state, burning Resin to prove active status. (3) The Bridge: A verification layer that translates TPM attestation signatures into Solana-compatible transactions.",
+  "targetAudience": "(1) Hardware Manufacturers (B2B): Licensing the Kytin IP to integrate 'Sovereign Identity' into standard edge devices. (2) DePIN Networks: Protocols like io.net or Render that need a fraud-proof way to verify the physical integrity of their worker nodes. (3) Agent Developers: Builders who need a 'Plug-and-Play' identity layer to give their agents autonomous banking rights.",
+  "businessModel": "(1) IP Licensing: We license the Kytin Protocol SDK to hardware OEMs and DePIN networks. (2) Token Economy (Resin): The protocol captures value through the Resin Token. Every heartbeat and verification event requires a micro-burn of Resin, creating deflationary pressure. (3) Identity Registry: A fee-based on-chain registry for looking up the 'Credit Score' of any Kytin-powered agent.",
+  "competitiveLandscape": "Competitors like IoTex or various DePIN projects are trying to build their own proprietary hardware 'black boxes.' Kytin is different because we are Pure IP. We don't manufacture chips; we provide the standard that runs on everyone else's chips (Infineon, STMicro, etc.). We are building the 'HTTP for Hardware Identity'—an open standard rather than a closed ecosystem.",
+  "futureVision": "Our vision is for the Kytin Protocol to become the global standard for Machine Identity. We are currently scaling our Devnet footprint using Ed25519-compatible hardware signatures and P-token compression to harness the full high-velocity capabilities of the Solana Alpenglow era. By 2028, we envision a 'Kytin Certified' sticker on every robotic arm and edge server. We provide the Soul; the world provides the Shell.",
+  "presentationLink": "https://www.youtube.com/watch?v=u8FER7IhBTY",
+  "liveAppLink": "https://dashboard-greetme.vercel.app/dashboard",
+  "twitterHandle": "johngreetmeceo",
+  "tags": ["security", "infra", "depin"]
+}

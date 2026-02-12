@@ -1,0 +1,36 @@
+# node
+node_modules/
+**/node_modules/
+package-lock.json
+
+# Build outputs
+**/target/
+**/build/
+**/dist/
+**/.cache/
+**/out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Environment & Secrets
+.env
+.env.*
+.vercel
+**/*-keypair.json
+**/id.json
+
+# Specialized
+**/CMakeCache.txt
+**/CMakeFiles/
+**/cmake_install.cmake
+**/compile_commands.json
+**/Makefile
+*.log
+npm-debug.log*
+*.rlib
+*.rmeta

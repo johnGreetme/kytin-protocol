@@ -1,0 +1,174 @@
+import { 
+    Connection, 
+    Keypair, 
+    PublicKey, 
+    Transaction, 
+    sendAndConfirmTransaction 
+} from "@solana/web3.js";
+import { 
+    createMint, 
+    getOrCreateAssociatedTokenAccount, 
+    mintTo, 
+    createBurnInstruction, 
+    createTransferInstruction,
+    TOKEN_PROGRAM_ID,
+    getAccount
+} from "@solana/spl-token";
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+
+// --- CONFIGURATION ---
+const __dirname = process.cwd();
+
+const RPC_URL = "https://api.devnet.solana.com";
+const HEARTBEAT_INTERVAL_MS = 10000; // 10 Seconds (Demo Speed)
+// const HEARTBEAT_INTERVAL_MS = 1800000; // 30 Minutes (Mainnet Speed)
+
+// --- PROTOCOL CONSTANTS ---
+// NOTE: On Mainnet, this is enforced by the Anchor Program.
+const TOTAL_HEARTBEAT_COST = 1.0; 
+const BURN_AMOUNT = 0.8; 
+const TREASURY_TRANSFER = 0.2; 
+const TREASURY_PUBKEY = new PublicKey("EXwgowJ1bozQNp3GjsoLkYkPGMce8xHdmhbhEnZRCavZ"); // Kytin DAO Treasury
+const DECIMALS = 9;
+
+// --- PERSISTENCE ---
+const STATE_FILE = path.join(__dirname, 'state.json');
+
+function loadState() {
+    if (fs.existsSync(STATE_FILE)) {
+        try {
+            return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+        } catch (e) {
+            return { hardwareCounter: 280 };
+        }
+    }
+    return { hardwareCounter: 280 };
+}
+
+function saveState(state: any) {
+    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+}
+
+let sessionState = loadState();
+const deviceId = "RPI-DEV-001"; 
+
+async function main() {
+    console.clear();
+    console.log("🦞 KYTIN PROTOCOL: STATE-LOCKED NODE");
+    
+    // --- SINGLETON LOCK ---
+    const lockFile = path.join(__dirname, 'node.lock');
+    try {
+        if (fs.existsSync(lockFile)) {
+            const pid = parseInt(fs.readFileSync(lockFile, 'utf8'));
+            try {
+                process.kill(pid, 0); // Check if process exists
+                console.error(`\n❌ CRITICAL: Instance already running (PID: ${pid}).`);
+                console.error("   Terminating this instance to prevent conflicts.");
+                console.error("   Run 'killall node' if you believe this is an error.\n");
+                process.exit(1);
+            } catch (e) {
+                // Process not found, stale lock
+                console.log("⚠️ Cleared stale lock file.");
+            }
+        }
+        fs.writeFileSync(lockFile, process.pid.toString());
+    } catch (err) {
+        console.error("Lock error:", err);
+    }
+
+    // Cleanup on generic exit
+    const cleanup = () => {
+        try { if (fs.existsSync(lockFile)) fs.unlinkSync(lockFile); } catch {}
+        process.exit();
+    };
+    process.on('SIGINT', cleanup);
+    process.on('SIGTERM', cleanup);
+    // ---------------------
+    
+    const connection = new Connection(RPC_URL, "confirmed");
+    const homeDir = os.homedir();
+    const keyPath = path.join(homeDir, '.config', 'solana', 'id.json');
+    const secretKey = Uint8Array.from(JSON.parse(fs.readFileSync(keyPath, 'utf8')));
+    const wallet = Keypair.fromSecretKey(secretKey);
+    console.log(`[AUTH] Identity: ${wallet.publicKey.toBase58()}`);
+
+    // FIND RESIN
+    const tokenAccounts = await connection.getParsedTokenAccountsByOwner(wallet.publicKey, {
+        programId: TOKEN_PROGRAM_ID
+    });
+    const existingResin = tokenAccounts.value.find(t => t.account.data.parsed.info.tokenAmount.uiAmount > 100);
+    
+    if (!existingResin) {
+        console.error("❌ ERROR: No RESIN found. Run 'buy_resin.ts' first!");
+        process.exit(1);
+    }
+    
+    const resinMint = new PublicKey(existingResin.account.data.parsed.info.mint);
+    console.log(`[FUEL] Tank Located: ${existingResin.account.data.parsed.info.tokenAmount.uiAmount} RESIN`);
+
+    console.log("\n🚀 STARTING HEARTBEAT LOOP...");
+    
+    setInterval(async () => {
+        await runHeartbeat(connection, wallet, resinMint);
+    }, HEARTBEAT_INTERVAL_MS);
+}
+
+async function runHeartbeat(connection: Connection, wallet: Keypair, mint: PublicKey) {
+    try {
+        // 1. HARDWARE COUNTS UP (Security)
+        sessionState.hardwareCounter++;
+        saveState(sessionState);
+        console.log(`\n[TPM] 🔐 Signing State (Counter: ${sessionState.hardwareCounter})`);
+
+        // 2. ECONOMY COUNTS DOWN (Burn)
+        const ata = await getOrCreateAssociatedTokenAccount(
+            connection,
+            wallet,
+            mint,
+            wallet.publicKey
+        );
+
+        const treasuryAta = await getOrCreateAssociatedTokenAccount(
+            connection,
+            wallet,
+            mint,
+            TREASURY_PUBKEY,
+            true // allowOwnerOffCurve
+        );
+
+        const tx = new Transaction().add(
+            // 80% Permanent Burn
+            createBurnInstruction(
+                ata.address, 
+                mint, 
+                wallet.publicKey, 
+                BURN_AMOUNT * (10 ** DECIMALS)
+            ),
+            // 20% Treasury Tax
+            createTransferInstruction(
+                ata.address,
+                treasuryAta.address,
+                wallet.publicKey,
+                TREASURY_TRANSFER * (10 ** DECIMALS)
+            )
+        );
+
+        const signature = await sendAndConfirmTransaction(connection, tx, [wallet]);
+        
+        // 3. FETCH NEW BALANCE FOR DISPLAY
+        const accountInfo = await getAccount(connection, ata.address);
+        const currentBalance = Number(accountInfo.amount) / (10 ** DECIMALS);
+
+        console.log(`[NET] 📡 Verified: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+        console.log(`[ECO] 🔄 Split: ${BURN_AMOUNT} Burned | ${TREASURY_TRANSFER} Treasury`);
+        console.log(`[ECO] ⛽️ REMAINING: ${currentBalance.toFixed(2)} RESIN`);
+        
+    } catch (err) {
+        console.error(`[ERROR] Heartbeat failed: ${err}`);
+    }
+}
+
+main();
