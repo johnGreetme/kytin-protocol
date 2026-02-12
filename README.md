@@ -392,14 +392,6 @@ For deep-level infrastructure inspection, use the native Solana toolset:
 - **`solana catchup --our-localhost`:平衡:** Checks local ledger parity.
 - **`solana gossip`:** Verifies communication within the validator network.
 
-│                                   └───────────┬───────────┘  │
-│                                               │              │
-│                                   ┌───────────▼───────────┐  │
-│                                   │    Hardware (TPM)     │  │
-│                                   │  State-Locked Keys    │  │
-│                                   └───────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-```
 
 ---
 
