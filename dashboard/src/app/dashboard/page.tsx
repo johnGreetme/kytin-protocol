@@ -206,14 +206,7 @@ export default function DashboardPage() {
           {/* Recent Heartbeats */}
           <div className="space-y-3">
             <div className="text-gray-500 text-xs">RECENT HEARTBEATS</div>
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex items-center justify-between text-sm bg-[#0a0a0a] rounded-lg p-3">
-                <span className="text-gray-400">
-                  {new Date(Date.now() - i * 4 * 60 * 60 * 1000).toLocaleTimeString()}
-                </span>
-                <span className="text-[#00ff9d]">✓ Signed</span>
-              </div>
-            ))}
+            <RecentHeartbeats />
           </div>
         </motion.div>
       </div>
@@ -255,5 +248,28 @@ export default function DashboardPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function RecentHeartbeats() {
+  const [now, setNow] = useState<number | null>(null);
+
+  useEffect(() => {
+    setNow(Date.now());
+  }, []);
+
+  if (!now) return null;
+
+  return (
+    <>
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="flex items-center justify-between text-sm bg-[#0a0a0a] rounded-lg p-3">
+          <span className="text-gray-400">
+            {new Date(now - i * 4 * 60 * 60 * 1000).toLocaleTimeString()}
+          </span>
+          <span className="text-[#00ff9d]">✓ Signed</span>
+        </div>
+      ))}
+    </>
   );
 }

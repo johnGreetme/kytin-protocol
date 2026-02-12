@@ -92,7 +92,7 @@ async function main() {
         } catch (error) {
             stopProcesses("Internet/RPC Connection Lost");
         }
-    }, 60000);
+    }, 5000); // Check every 5s for instant demo recovery
 
     // Lifecycle Management
     const cleanup = () => {
