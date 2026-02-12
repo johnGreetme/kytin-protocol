@@ -38,6 +38,20 @@ export const TRUSTED_KEYS: readonly string[] = Array.from(TrustedDevelopers);
 // SIGNATURE VERIFICATION (using tweetnacl)
 // ============================================================================
 
+/**
+ * ARCHITECTURAL NOTE (HACKATHON MVP):
+ * * Current implementation uses a software bridge to verify TPM-signed payloads.
+ * * LIMITATION:
+ * TPM 2.0 native curves (NIST P-256 / RSA) are not natively supported by 
+ * Solana runtime (Ed25519) for direct transaction signing.
+ * * V2 ROADMAP:
+ * - Implement "Binding Signatures": TPM signs a P-256 payload authorizing 
+ * an ephemeral Ed25519 keypair for a specific slot duration.
+ * - This allows on-chain verification of the TPM authorization without 
+ * requiring the Solana VM to support P-256 directly.
+ * * Current "padding" logic is for Devnet demonstration purposes only.
+ */
+import { Connection } from "@solana/web3.js";
 import nacl from 'tweetnacl';
 
 /**

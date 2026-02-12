@@ -33,8 +33,25 @@ const TREASURY_TRANSFER = 0.2;
 const TREASURY_PUBKEY = new PublicKey("EXwgowJ1bozQNp3GjsoLkYkPGMce8xHdmhbhEnZRCavZ"); // Kytin DAO Treasury
 const DECIMALS = 9;
 
-// --- MOCK HARDWARE STATE ---
-let hardwareCounter = 280; // Continuing from where you left off
+// --- PERSISTENCE ---
+const STATE_FILE = path.join(__dirname, 'state.json');
+
+function loadState() {
+    if (fs.existsSync(STATE_FILE)) {
+        try {
+            return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+        } catch (e) {
+            return { hardwareCounter: 280 };
+        }
+    }
+    return { hardwareCounter: 280 };
+}
+
+function saveState(state: any) {
+    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+}
+
+let sessionState = loadState();
 const deviceId = "RPI-DEV-001"; 
 
 async function main() {
@@ -102,8 +119,9 @@ async function main() {
 async function runHeartbeat(connection: Connection, wallet: Keypair, mint: PublicKey) {
     try {
         // 1. HARDWARE COUNTS UP (Security)
-        hardwareCounter++;
-        console.log(`\n[TPM] 🔐 Signing State (Counter: ${hardwareCounter})`);
+        sessionState.hardwareCounter++;
+        saveState(sessionState);
+        console.log(`\n[TPM] 🔐 Signing State (Counter: ${sessionState.hardwareCounter})`);
 
         // 2. ECONOMY COUNTS DOWN (Burn)
         const ata = await getOrCreateAssociatedTokenAccount(
@@ -141,7 +159,6 @@ async function runHeartbeat(connection: Connection, wallet: Keypair, mint: Publi
         const signature = await sendAndConfirmTransaction(connection, tx, [wallet]);
         
         // 3. FETCH NEW BALANCE FOR DISPLAY
-        // We re-fetch the account info to show the TRUE on-chain balance
         const accountInfo = await getAccount(connection, ata.address);
         const currentBalance = Number(accountInfo.amount) / (10 ** DECIMALS);
 

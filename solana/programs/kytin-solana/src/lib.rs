@@ -1,3 +1,16 @@
+/**
+ * ARCHITECTURAL NOTE (HACKATHON MVP):
+ * * Current implementation uses a software bridge to verify TPM-signed payloads.
+ * * LIMITATION:
+ * TPM 2.0 native curves (NIST P-256 / RSA) are not natively supported by
+ * Solana runtime (Ed25519) for direct transaction signing.
+ * * V2 ROADMAP:
+ * - Implement "Binding Signatures": TPM signs a P-256 payload authorizing
+ * an ephemeral Ed25519 keypair for a specific slot duration.
+ * - This allows on-chain verification of the TPM authorization without
+ * requiring the Solana VM to support P-256 directly.
+ * * Current "padding" logic is for Devnet demonstration purposes only.
+ */
 use anchor_lang::prelude::*;
 
 declare_id!("J4ENTKEKD2PwZooNrivcNziHPFK1RuqsxdcQLEp82Sju");
@@ -18,34 +31,34 @@ pub mod kytin_solana {
 
     pub fn recover_identity(ctx: Context<RecoverIdentity>, new_tpm_key: Pubkey) -> Result<()> {
         let agent = &mut ctx.accounts.agent_identity;
-        
+
         // Verify signer is the recovery wallet (enforced by constraints)
         // Update to new TPM key
         let old_tpm = agent.authority_tpm;
         agent.authority_tpm = new_tpm_key;
-        
+
         // Unfreeze if needed
         agent.is_frozen = false;
-        
+
         emit!(IdentityRecovered {
             agent_identity: agent.key(),
             old_tpm,
             new_tpm: new_tpm_key,
         });
-        
+
         Ok(())
     }
-    
+
     pub fn sign_heartbeat(ctx: Context<SignHeartbeat>) -> Result<()> {
         let agent = &mut ctx.accounts.agent_identity;
         require!(!agent.is_frozen, CustomError::AgentFrozen);
-        
+
         // Burn 1 Resin
         require!(agent.resin_balance >= 1, CustomError::InsufficientResin);
         agent.resin_balance -= 1;
-        
+
         // TODO: Mint Heartbeat Token / Update uptime score
-        
+
         Ok(())
     }
 }
@@ -85,8 +98,8 @@ pub struct SignHeartbeat<'info> {
 
 #[account]
 pub struct AgentIdentity {
-    pub authority_tpm: Pubkey,      // The active "CEO" (TPM Key)
-    pub recovery_wallet: Pubkey,    // The "Board" (Ledger/Cold Wallet)
+    pub authority_tpm: Pubkey,   // The active "CEO" (TPM Key)
+    pub recovery_wallet: Pubkey, // The "Board" (Ledger/Cold Wallet)
     pub resin_balance: u64,
     pub reputation: u16,
     pub is_frozen: bool,
