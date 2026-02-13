@@ -27,6 +27,31 @@ interface VitalityStreamProps {
   onPulse?: () => void;
 }
 
+// Helper
+function getBurnAmountFromTx(tx: ParsedTransactionWithMeta | null): number {
+  if (!tx) return 0;
+  let totalBurn = 0;
+  // Top-Level
+  const instructions = tx.transaction?.message?.instructions || [];
+  for (const ix of instructions) {
+      if ('parsed' in ix && (ix.parsed as any).type === "burn") {
+            const info = (ix.parsed as any).info;
+           totalBurn += (info.amount / 1_000_000_000);
+      }
+  }
+  // Inner
+  const innerInstructions = tx.meta?.innerInstructions || [];
+  for (const inner of innerInstructions) {
+      for (const ix of inner.instructions) {
+           if ('parsed' in ix && (ix.parsed as any).type === "burn") {
+               const info = (ix.parsed as any).info;
+               totalBurn += (info.amount / 1_000_000_000);
+           }
+      }
+  }
+  return totalBurn;
+}
+
 export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -94,6 +119,7 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
   }, [onPulse, playBeep]);
 
   // Init
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setLastPulseTime(Date.now()); }, []);
 
   // Flatline Check
@@ -119,41 +145,42 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
     try { pubkey = new PublicKey(walletAddress); } catch (e) { return; }
 
     console.log(`[VITALITY] Listening to ${walletAddress}...`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setIsConnected(true);
     setLastPulseTime(Date.now()); 
 
-    subId = connection.onLogs(
-      pubkey,
-      async (logs, ctx) => {
-        if (logs.err) return; 
-        
-        // 1. Fetch TX to verify Burn
-        const signature = logs.signature;
-        console.log("[VITALITY] Pulse detected, verifying...", signature);
-        
-        try {
-            // We need to fetch full tx to see amounts. 
-            // Note: This adds a slight delay to the visual pulse, which is fine for "Verification" feel.
-            const tx = await connection.getParsedTransaction(signature, {
-                maxSupportedTransactionVersion: 0
-            });
-            
-            const actualBurn = getBurnAmountFromTx(tx);
-            
-            if (actualBurn < TITAN_BURN_MIN) {
-                console.warn(`🚨 FRAUD DETECTED: Burned ${actualBurn} < ${TITAN_BURN_MIN}`);
-                triggerPulse(true); // FRAUD PULSE
-            } else {
-                console.log(`✅ VALID: Burned ${actualBurn}`);
-                triggerPulse(false); // NORMAL PULSE
-            }
-        } catch (e) {
-            console.error("Verification failed, assuming visual pulse only", e);
-            triggerPulse(false); // Fallback
-        }
-      },
-      "confirmed"
-    );
+      subId = connection.onLogs(
+        pubkey,
+        async (logs, _ctx) => {
+          if (logs.err) return; 
+          
+          // 1. Fetch TX to verify Burn
+          const signature = logs.signature;
+          console.log("[VITALITY] Pulse detected, verifying...", signature);
+          
+          try {
+              // We need to fetch full tx to see amounts. 
+              // Note: This adds a slight delay to the visual pulse, which is fine for "Verification" feel.
+              const tx = await connection.getParsedTransaction(signature, {
+                  maxSupportedTransactionVersion: 0
+              });
+              
+              const actualBurn = getBurnAmountFromTx(tx);
+              
+              if (actualBurn < TITAN_BURN_MIN) {
+                  console.warn(`🚨 FRAUD DETECTED: Burned ${actualBurn} < ${TITAN_BURN_MIN}`);
+                  triggerPulse(true); // FRAUD PULSE
+              } else {
+                  console.log(`✅ VALID: Burned ${actualBurn}`);
+                  triggerPulse(false); // NORMAL PULSE
+              }
+          } catch (_e) {
+              console.error("Verification failed, assuming visual pulse only");
+              triggerPulse(false); // Fallback
+          }
+        },
+        "confirmed"
+      );
 
     return () => {
       if (subId !== null) connection.removeOnLogsListener(subId);
@@ -240,28 +267,7 @@ export function VitalityStream({ walletAddress, onPulse }: VitalityStreamProps) 
     return () => cancelAnimationFrame(frameId.current);
   }, [isFraudulent]); // Re-bind if fraud state changes
 
-  // Helper
-  function getBurnAmountFromTx(tx: ParsedTransactionWithMeta | null): number {
-    if (!tx) return 0;
-    let totalBurn = 0;
-    // Top-Level
-    const instructions = tx.transaction?.message?.instructions || [];
-    for (const ix of instructions) {
-        if ('parsed' in ix && ix.parsed.type === "burn") {
-             totalBurn += (ix.parsed.info.amount / 1_000_000_000);
-        }
-    }
-    // Inner
-    const innerInstructions = tx.meta?.innerInstructions || [];
-    for (const inner of innerInstructions) {
-        for (const ix of inner.instructions) {
-             if ('parsed' in ix && ix.parsed.type === "burn") {
-                 totalBurn += (ix.parsed.info.amount / 1_000_000_000);
-             }
-        }
-    }
-    return totalBurn;
-  }
+
 
   return (
     <div className={`relative w-full h-[200px] bg-[#0b0b0e] rounded-xl overflow-hidden border transition-colors duration-300 ${isFraudulent ? 'border-red-500 fraud-mode' : 'border-[#222] shadow-[0_0_50px_-12px_rgba(0,255,157,0.2)]'}`}>

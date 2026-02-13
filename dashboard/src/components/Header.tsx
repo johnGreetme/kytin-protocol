@@ -49,7 +49,7 @@ export function Header({ title, subtitle, activePage }: HeaderProps) {
 
         {/* Center Navigation */}
         <nav className="hidden md:flex items-center gap-1 bg-zinc-900/50 p-1 rounded-lg border border-zinc-800 absolute left-1/2 -translate-x-1/2">
-          <Link href="/" className={navLinkClass('dashboard')}>
+          <Link href="/dashboard" className={navLinkClass('dashboard')}>
             Dashboard
           </Link>
           <Link href="/explorer" className={navLinkClass('explorer')}>
