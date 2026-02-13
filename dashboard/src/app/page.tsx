@@ -31,7 +31,7 @@ export default function MissionControl() {
         console.error("Failed to fetch status", error);
         // Fallback mock if API fails (e.g. rate limit)
         setStatus({
-            version: 'v1.0.0',
+            version: 'v1.2.0-rc1',
             state: 'online',
             tpm: { hardware_id: 'OFFLINE-MODE', mock_mode: true, policy_hash: '' },
             resin: { balance: 18450, lifetime_burned: 100, capacity: 100000 },
