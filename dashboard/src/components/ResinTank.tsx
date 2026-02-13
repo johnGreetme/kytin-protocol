@@ -78,16 +78,20 @@ export function ResinTank({
         {/* Center Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <motion.div
-            className="flex items-center gap-1"
+            className="flex items-center justify-center gap-1 w-full px-2"
             animate={isAnimating ? { scale: [1, 1.1, 1] } : {}}
             transition={{ duration: 0.3 }}
           >
             <Droplet 
-              className="w-5 h-5" 
+              className="w-4 h-4 flex-shrink-0" 
               style={{ color: colors.primary }}
             />
             <motion.span 
-              className="text-3xl font-bold text-white"
+              className={`font-bold text-white truncate ${
+                balance.toLocaleString().length > 9 ? 'text-lg' :
+                balance.toLocaleString().length > 7 ? 'text-xl' :
+                balance.toLocaleString().length > 5 ? 'text-2xl' : 'text-3xl'
+              }`}
               key={balance}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -95,7 +99,7 @@ export function ResinTank({
               {balance.toLocaleString()}
             </motion.span>
           </motion.div>
-          <span className="text-xs text-zinc-500 mt-1">CREDITS</span>
+          <span className="text-[10px] text-zinc-500 mt-0.5">CREDITS</span>
         </div>
 
         {/* Warning Icon for Low */}
