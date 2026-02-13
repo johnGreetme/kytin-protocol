@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "Hardware-Bound Identity Protocol",
   "type": "module",
+  "scripts": {
+    "build": "cd dashboard && npm install && npm run build",
+    "dev": "cd dashboard && npm run dev",
+    "start": "cd dashboard && npm start"
+  },
   "dependencies": {
     "@solana/spl-token": "^0.4.1",
     "@solana/web3.js": "^1.91.1",
