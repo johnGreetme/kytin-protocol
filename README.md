@@ -468,7 +468,7 @@ Lazarus Recovery is not a "Reset" button; it is a cryptographic consensus event 
 ## 🔗 Links
 
 - **Clawhub Registry:** [clawhub.kytin.io](./bridge/SKILL.md)
-- **Mission Control**: [https://greetdeck.io](https://greetdeck.io)
+- **Mission Control**: [http://greetme.io/dashboard](http://greetme.io/dashboard)
 
 ---
 
