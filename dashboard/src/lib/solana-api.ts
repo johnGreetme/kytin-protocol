@@ -1,72 +1,76 @@
 
-import { Connection, PublicKey, LAMPORTS_PER_SOL, ParsedTransactionWithMeta } from '@solana/web3.js';
-import { SentinelStatus } from './kytin-api';
-
+// Native implementation using fetch to avoid heavy web3.js bundle
 const RPC_URL = 'https://api.devnet.solana.com';
-const connection = new Connection(RPC_URL, 'confirmed');
 
-export async function getDevnetStatus(walletAddress: string): Promise<SentinelStatus> {
-  const pubkey = new PublicKey(walletAddress);
-
-  // 1. Get SOL Balance (for Daily Limit / Spent calculation)
-  const balance = await connection.getBalance(pubkey);
-  const solBalance = balance / LAMPORTS_PER_SOL;
-
-  // 2. Find RESIN Token
-  // Heuristic: First token with > 1000 balance (matching start_node.ts logic)
-  const tokenAccounts = await connection.getParsedTokenAccountsByOwner(pubkey, {
-    programId: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
-  });
-
-  let resinBalance = 0;
-  let resinMint = '';
-
-  const resinAccount = tokenAccounts.value.find(t => {
-    const amount = t.account.data.parsed.info.tokenAmount.uiAmount;
-    return amount > 1000;
-  });
-
-  if (resinAccount) {
-    resinBalance = resinAccount.account.data.parsed.info.tokenAmount.uiAmount;
-    resinMint = resinAccount.account.data.parsed.info.mint;
-  }
-
-  // 3. Get Recent Transactions (Heartbeats)
-  // We count recent transactions as heartbeats for the demo
-  const signatures = await connection.getSignaturesForAddress(pubkey, { limit: 10 });
-  const recentHeartbeats = signatures.length;
-
-  // 4. Construct Mocked Status
-  return {
-    protocol: 'Kytin Protocol (Devnet)',
-    version: 'v0.1.0-DEMO',
+export interface SentinelStatus {
+    version: string;
+    state: 'online' | 'offline' | 'error';
     tpm: {
-      available: true,
-      mock_mode: true,
-      hardware_id: `DEVNET-${pubkey.toBase58().substring(0, 8)}`,
-      manufacturer: 'Solana Devnet',
-      firmware: '1.0.0',
-    },
+        hardware_id: string;
+        mock_mode: boolean;
+        policy_hash: string;
+    };
     resin: {
-      balance: resinBalance,
-      lifetime_burned: recentHeartbeats * 1, // Assume 1 burn per tx
-      daily_limit: 100,
-      daily_remaining: 100, // Mocked
-    },
+        balance: number;
+        lifetime_burned: number;
+        capacity: number;
+    };
     policy: {
-      daily_limit_sol: 1.0,
-      daily_spent_sol: 1.0 - solBalance > 0 ? 1.0 - solBalance : 0.1, // Fake spent logic
-    },
-    clawhub: 'connected',
-  };
+        daily_limit_sol: number;
+        daily_spent_sol: number;
+    };
 }
 
-// Check if address is valid
-export function isValidAddress(address: string): boolean {
+export async function getDevnetStatus(walletAddress: string): Promise<SentinelStatus> {
   try {
-    new PublicKey(address);
-    return true;
+      // 1. Get Real SOL Balance form Devnet
+      const response = await fetch(RPC_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              jsonrpc: "2.0",
+              id: 1,
+              method: "getBalance",
+              params: [walletAddress]
+          })
+      });
+
+      const data = await response.json();
+      const lamports = data.result?.value || 0;
+      const solBalance = lamports / 1000000000; // 10^9
+
+      // 2. Construct Status based on Real Devnet Data
+      // If we have SOL, we assume we have "Resin" (proportional mock)
+      // 1 SOL = 22,000 Resin (arbitrary exchange rate for demo)
+      
+      const resinBalance = Math.floor(solBalance * 22000); 
+
+      return {
+          version: 'v1.2.0-rc1 (DEVNET)',
+          state: 'online',
+          tpm: {
+              hardware_id: walletAddress, // Use the real wallet address as ID
+              mock_mode: true,
+              policy_hash: 'DEVNET_VERIFIED_HASH'
+          },
+          resin: {
+              balance: resinBalance > 0 ? resinBalance : 0,
+              lifetime_burned: 120, // Mock constant
+              capacity: 100000
+          },
+          policy: {
+              daily_limit_sol: 1.0,
+              daily_spent_sol: Math.max(0, 1.0 - solBalance) // Calculate spent based on balance vs limit
+          }
+      };
+
   } catch (e) {
-    return false;
+      console.error("Devnet Fetch Error", e);
+      throw e;
   }
+}
+
+// Simple regex check for base58 length (32-44 chars)
+export function isValidAddress(address: string): boolean {
+  return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
 }
