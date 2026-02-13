@@ -290,25 +290,92 @@ export default function Dashboard() {
                 <div className="text-center py-8">
                   <p className="text-zinc-500">No connection to Sentinel</p>
                   <p className="text-xs text-zinc-600 mt-2">Run: ./kytin_sentinel</p>
-                  
-                  <div className="mt-8 pt-6 border-t border-zinc-800">
-                    <p className="text-sm font-medium text-emerald-400 mb-3">OR CONNECT VIA DEVNET</p>
-                    <div className="flex gap-2 max-w-sm mx-auto">
-                        <input 
-                        type="text" 
-                        placeholder="Enter Wallet Address..." 
-                        className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none transition-colors"
-                        value={inputAddress}
-                        onChange={(e) => setInputAddress(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleConnect()}
-                        />
+                                    <div className="mt-8 pt-6 border-t border-zinc-800">
+                    <p className="text-sm font-medium text-emerald-400 mb-3 uppercase">Initialize Protocol (Hackathon Mode)</p>
+                    <div className="max-w-sm mx-auto">
                         <button 
-                        onClick={handleConnect}
-                        disabled={!inputAddress}
-                        className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-lg text-sm hover:bg-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        onClick={async () => {
+                            try {
+                                setIsLoading(true);
+                                
+                                // 1. Generate Mock PubKey
+                                const mockKey = Array.from({length: 44}, () => 
+                                    "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"[Math.floor(Math.random() * 58)]
+                                ).join('');
+
+                                // 2. Request Airdrop
+                                const response = await fetch('https://api.devnet.solana.com', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        jsonrpc: "2.0",
+                                        id: 1,
+                                        method: "requestAirdrop",
+                                        params: [
+                                            mockKey,
+                                            1000000000 // 1 SOL
+                                        ]
+                                    })
+                                });
+
+                                const data = await response.json();
+
+                                if (data.result) {
+                                    // SUCCESS
+                                    setIsDevnetMode(true);
+                                    setAgentState('online');
+                                    setWalletAddress(mockKey);
+                                    
+                                    setStatus({
+                                        version: 'v1.2.0-rc1 (DEVNET)',
+                                        state: 'online',
+                                        tpm: {
+                                            hardware_id: mockKey,
+                                            mock_mode: true,
+                                            policy_hash: 'SIMULATED_POLICY_HASH'
+                                        },
+                                        resin: {
+                                            balance: 22000,
+                                            lifetime_burned: 0,
+                                            capacity: 100000
+                                        },
+                                        policy: {
+                                            daily_limit_sol: 1.0,
+                                            daily_spent_sol: 0.0,
+                                        }
+                                    });
+
+                                    setDeadInfo(null);
+                                    
+                                    alert(`SYSTEM ONLINE.\n\nHardware ID: ${mockKey}\nTx Signature: ${data.result}`);
+                                } else {
+                                    throw new Error('Airdrop failed');
+                                }
+                            } catch (e) {
+                                alert("Devnet Rate Limit or Network Error. Try again.");
+                                setIsLoading(false);
+                            } finally {
+                                setIsLoading(false);
+                            }
+                        }}
+                        disabled={isLoading}
+                        className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20"
                         >
-                        Connect
+                        {isLoading ? (
+                            <>
+                                <RefreshCw className="w-5 h-5 animate-spin" />
+                                INITIALIZING...
+                            </>
+                        ) : (
+                            <>
+                                <Zap className="w-5 h-5" />
+                                REFILL RESIN & CONNECT
+                            </>
+                        )}
                         </button>
+                        <p className="text-xs text-zinc-600 mt-3">
+                            *Requests 1 SOL airdrop from Solana Devnet to simulate tank refill.
+                        </p>
                     </div>
                   </div>
                 </div>

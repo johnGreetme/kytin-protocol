@@ -81,4 +81,4 @@ The ultimate use case is transition to undercollateralized lending for AI agents
 
 ---
 
-*State-Locked Protocol™ and Proof of Physics™ are patent-pending technologies by the Kytin Protocol Foundation.*
+*State-Locked Protocol™ and Proof of Physics™ are patent-pending technologies by Greetme Technologies.*
