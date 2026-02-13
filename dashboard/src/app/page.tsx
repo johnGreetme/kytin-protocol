@@ -110,6 +110,72 @@ export default function Dashboard() {
     }
   };
 
+  // Airdrop Logic
+  const handleAirdrop = async () => {
+    try {
+        setIsLoading(true);
+        
+        // 1. Generate Mock PubKey
+        const mockKey = Array.from({length: 44}, () => 
+            "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"[Math.floor(Math.random() * 58)]
+        ).join('');
+
+        // 2. Request Airdrop
+        const response = await fetch('https://api.devnet.solana.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonrpc: "2.0",
+                id: 1,
+                method: "requestAirdrop",
+                params: [
+                    mockKey,
+                    1000000000 // 1 SOL
+                ]
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.result) {
+            // SUCCESS
+            setIsDevnetMode(true);
+            setAgentState('online');
+            setWalletAddress(mockKey);
+            
+            setStatus({
+                version: 'v1.2.0-rc1 (DEVNET)',
+                state: 'online',
+                tpm: {
+                    hardware_id: mockKey,
+                    mock_mode: true,
+                    policy_hash: 'SIMULATED_POLICY_HASH'
+                },
+                resin: {
+                    balance: 22000,
+                    lifetime_burned: 0,
+                    capacity: 100000
+                },
+                policy: {
+                    daily_limit_sol: 1.0,
+                    daily_spent_sol: 0.0,
+                }
+            });
+
+            setDeadInfo(null);
+            
+            alert(`SYSTEM ONLINE.\n\nHardware ID: ${mockKey}\nTx Signature: ${data.result}`);
+        } else {
+            throw new Error('Airdrop failed');
+        }
+    } catch (e) {
+        alert("Devnet Rate Limit or Network Error. Try again.");
+        setIsLoading(false);
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       {/* Header */}
@@ -208,6 +274,7 @@ export default function Dashboard() {
                 balance={status?.resin.balance ?? 0}
                 lifetime_burned={status?.resin.lifetime_burned ?? 0}
                 isAnimating={isAnimating}
+                onRefill={handleAirdrop}
               />
             </div>
 
@@ -294,70 +361,7 @@ export default function Dashboard() {
                     <p className="text-sm font-medium text-emerald-400 mb-3 uppercase">Initialize Protocol (Hackathon Mode)</p>
                     <div className="max-w-sm mx-auto">
                         <button 
-                        onClick={async () => {
-                            try {
-                                setIsLoading(true);
-                                
-                                // 1. Generate Mock PubKey
-                                const mockKey = Array.from({length: 44}, () => 
-                                    "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"[Math.floor(Math.random() * 58)]
-                                ).join('');
-
-                                // 2. Request Airdrop
-                                const response = await fetch('https://api.devnet.solana.com', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                        jsonrpc: "2.0",
-                                        id: 1,
-                                        method: "requestAirdrop",
-                                        params: [
-                                            mockKey,
-                                            1000000000 // 1 SOL
-                                        ]
-                                    })
-                                });
-
-                                const data = await response.json();
-
-                                if (data.result) {
-                                    // SUCCESS
-                                    setIsDevnetMode(true);
-                                    setAgentState('online');
-                                    setWalletAddress(mockKey);
-                                    
-                                    setStatus({
-                                        version: 'v1.2.0-rc1 (DEVNET)',
-                                        state: 'online',
-                                        tpm: {
-                                            hardware_id: mockKey,
-                                            mock_mode: true,
-                                            policy_hash: 'SIMULATED_POLICY_HASH'
-                                        },
-                                        resin: {
-                                            balance: 22000,
-                                            lifetime_burned: 0,
-                                            capacity: 100000
-                                        },
-                                        policy: {
-                                            daily_limit_sol: 1.0,
-                                            daily_spent_sol: 0.0,
-                                        }
-                                    });
-
-                                    setDeadInfo(null);
-                                    
-                                    alert(`SYSTEM ONLINE.\n\nHardware ID: ${mockKey}\nTx Signature: ${data.result}`);
-                                } else {
-                                    throw new Error('Airdrop failed');
-                                }
-                            } catch (e) {
-                                alert("Devnet Rate Limit or Network Error. Try again.");
-                                setIsLoading(false);
-                            } finally {
-                                setIsLoading(false);
-                            }
-                        }}
+                        onClick={handleAirdrop}
                         disabled={isLoading}
                         className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20"
                         >

@@ -1,20 +1,22 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Fuel, Droplet, AlertTriangle } from 'lucide-react';
+import { Fuel, Droplet, AlertTriangle, Zap } from 'lucide-react';
 
 interface ResinTankProps {
   balance: number;
   maxBalance?: number;
   lifetime_burned?: number;
   isAnimating?: boolean;
+  onRefill?: () => void;
 }
 
 export function ResinTank({ 
   balance, 
   maxBalance = 22000, 
   lifetime_burned = 0,
-  isAnimating = false 
+  isAnimating = false,
+  onRefill
 }: ResinTankProps) {
   const percentage = Math.min(100, (balance / maxBalance) * 100);
   const isLow = percentage < 10;
@@ -120,18 +122,19 @@ export function ResinTank({
         </div>
       </div>
 
-      {/* Refill Link */}
-      {isLow && (
-        <motion.a
-          href="https://clawhub.kytin.io/refill"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 px-4 py-2 bg-amber-500/20 border border-amber-500/50 rounded-lg text-amber-400 text-sm font-medium hover:bg-amber-500/30 transition-colors"
+      {/* Refill Button */}
+      {isLow && onRefill && (
+        <motion.button
+          onClick={onRefill}
+          className="mt-4 px-4 py-2 bg-amber-500/20 border border-amber-500/50 rounded-lg text-amber-400 text-sm font-medium hover:bg-amber-500/30 transition-colors flex items-center gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          🔥 Refill Resin
-        </motion.a>
+          <Zap className="w-4 h-4" />
+          Refill Resin
+        </motion.button>
       )}
     </div>
   );
