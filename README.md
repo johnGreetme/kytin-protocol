@@ -353,6 +353,25 @@ To equip your AI agent with the "Iron Shell", you must install the Kytin Skill.
 3. **Verify:** Ask your agent: *"What is your hardware status?"*
    - **Response:** *"I am running on a Kytin Sentinel (Titan-Class). My TPM is active and my Resin Tank is at 99%."*
 
+### 🚧 Why Local Install? (Clawhub Registry Status)
+
+You might ask: *"Why isn't this `kytin-bridge` skill available on the public `clawhub.io` registry yet?"*
+
+**Answer:** Security & Mainnet Verification.
+
+As of Q1 2026, Clawhub has implemented strict **V2.0 Security Protocols** for all hardware-binding skills. To be listed in the public registry, a skill must:
+1.  Point to a **Verified Mainnet Contract** (We are currently on Genesis Devnet).
+2.  Pass the **"Hardware Abstraction Audit"** to ensure no raw driver access is leaked to the LLM.
+
+**Our Launch Plan:**
+Upon our official Mainnet Launch (scheduled for Q4 2026), we will execute the verified publish command:
+
+```bash
+claw-cli publish --verified --audit-id=KYT-2026-AUDIT
+```
+
+Until then, the `bridge/SKILL.md` file serves as a **"Devnet Bridge"**, allowing judges and developers to test the full hardware-binding logic safely in a local sandbox environment.
+
 ---
 
 ## 🔋 Resin Economy (DePIN Model)
