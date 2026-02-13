@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Wallet, ShieldCheck, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Header } from '@/components/Header';
 
 export default function RecoveryPage() {
   const [activeStep, setActiveStep] = useState(1);
@@ -10,29 +11,11 @@ export default function RecoveryPage() {
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-emerald-500/30">
       
-      {/* Header */}
-      <header className="border-b border-zinc-900 bg-[#050505]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-emerald-500 tracking-tight">
-              Lazarus Protocol
-            </h1>
-            <p className="text-xs text-zinc-500 font-medium">Disaster Recovery for Dead Hardware</p>
-          </div>
-
-          <nav className="flex items-center gap-1 bg-zinc-900/50 p-1 rounded-lg border border-zinc-800">
-            <Link href="/" className="px-5 py-2 text-sm text-zinc-400 hover:text-white transition-colors rounded-md hover:bg-zinc-800">
-              Dashboard
-            </Link>
-            <Link href="/explorer" className="px-5 py-2 text-sm text-zinc-400 hover:text-white transition-colors rounded-md hover:bg-zinc-800">
-              Explorer
-            </Link>
-            <span className="px-5 py-2 text-sm text-emerald-400 bg-zinc-800 rounded-md font-medium shadow-sm">
-              Recovery
-            </span>
-          </nav>
-        </div>
-      </header>
+      <Header 
+        title="Lazarus Protocol" 
+        subtitle="Disaster Recovery for Dead Hardware" 
+        activePage="recovery" 
+      />
 
       <main className="max-w-4xl mx-auto px-6 py-12">
         

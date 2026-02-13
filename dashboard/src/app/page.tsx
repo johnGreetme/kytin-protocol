@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Fuel, Shield, Zap, CheckCircle2, ArrowUp, Activity } from 'lucide-react';
+import { Header } from '@/components/Header';
 
 export default function MissionControl() {
   const [mounted, setMounted] = useState(false);
@@ -12,29 +13,11 @@ export default function MissionControl() {
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-emerald-500/30">
       
-      {/* Header */}
-      <header className="border-b border-zinc-900/50 bg-[#050505]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-emerald-500 tracking-tight">
-              Mission Control
-            </h1>
-            <p className="text-xs text-zinc-500 font-medium">Kytin Protocol Dashboard</p>
-          </div>
-
-          <nav className="flex items-center gap-1 bg-zinc-900/50 p-1 rounded-lg border border-zinc-800">
-            <span className="px-5 py-2 text-sm text-emerald-400 bg-zinc-800 rounded-md font-medium shadow-sm">
-              Dashboard
-            </span>
-            <Link href="/explorer" className="px-5 py-2 text-sm text-zinc-400 hover:text-white transition-colors rounded-md hover:bg-zinc-800">
-              Explorer
-            </Link>
-            <Link href="/recovery" className="px-5 py-2 text-sm text-zinc-400 hover:text-white transition-colors rounded-md hover:bg-zinc-800">
-              Recovery
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Header 
+        title="Mission Control" 
+        subtitle="Kytin Protocol Dashboard" 
+        activePage="dashboard" 
+      />
 
       <main className="max-w-[1600px] mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

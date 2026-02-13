@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, Globe, Cpu, Shield, Zap, Map as MapIcon, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { Header } from '@/components/Header';
 
 // Mock Data
 const MOCK_NODES = [
@@ -38,29 +39,11 @@ export default function ExplorerPage() {
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-emerald-500/30">
       
-      {/* Header */}
-      <header className="border-b border-zinc-900 bg-[#050505]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-              Global Explorer
-            </h1>
-            <p className="text-xs text-zinc-500">Active Kytin Sentinels Worldwide</p>
-          </div>
-
-          <nav className="flex items-center gap-1 bg-zinc-900/50 p-1 rounded-lg border border-zinc-800">
-            <Link href="/" className="px-4 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors rounded-md hover:bg-zinc-800">
-              Dashboard
-            </Link>
-            <span className="px-4 py-1.5 text-sm text-emerald-400 bg-zinc-800 rounded-md font-medium shadow-sm">
-              Explorer
-            </span>
-            <Link href="/recovery" className="px-4 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors rounded-md hover:bg-zinc-800">
-              Recovery
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Header 
+        title="Global Explorer" 
+        subtitle="Active Kytin Sentinels Worldwide" 
+        activePage="explorer" 
+      />
 
       <main className="max-w-[1600px] mx-auto px-6 py-8">
         
