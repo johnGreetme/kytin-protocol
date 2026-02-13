@@ -11,7 +11,7 @@
   "competitiveLandscape": "Competitors like IoTex or various DePIN projects are trying to build their own proprietary hardware 'black boxes.' Kytin is different because we are Pure IP. We don't manufacture chips; we provide the standard that runs on everyone else's chips (Infineon, STMicro, etc.). We are building the 'HTTP for Hardware Identity'—an open standard rather than a closed ecosystem.",
   "futureVision": "Our vision is for the Kytin Protocol to become the global standard for Machine Identity. We are currently scaling our Devnet footprint using Ed25519-compatible hardware signatures and P-token compression to harness the full high-velocity capabilities of the Solana Alpenglow era. By 2028, we envision a 'Kytin Certified' sticker on every robotic arm and edge server. We provide the Soul; the world provides the Shell.",
   "presentationLink": "https://www.youtube.com/watch?v=u8FER7IhBTY",
-  "liveAppLink": "https://dashboard-greetme.vercel.app/dashboard",
+  "liveAppLink": "https://greetdeck.io",
   "twitterHandle": "johngreetmeceo",
   "tags": ["security", "infra", "depin"]
 }

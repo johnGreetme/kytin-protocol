@@ -11,7 +11,7 @@
 ---
 
 [![Spec](https://img.shields.io/badge/Spec-3GPP%20Rel--20%20(SLP)-blue)](https://github.com/anthropics/solana-agent-kit)
-[![Status](https://img.shields.io/badge/Status-Genesis%20Devnet-green)](https://dashboard-greetme.vercel.app/dashboard)
+[![Status](https://img.shields.io/badge/Status-Genesis%20Devnet-green)](https://greetdeck.io)
 [![Hardware](https://img.shields.io/badge/Hardware-TPM%202.0-orange)](https://trustedcomputinggroup.org/)
 [![Network](https://img.shields.io/badge/Network-Solana-purple)](https://solana.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -218,11 +218,11 @@ npx ts-node buy_resin.ts
 The dashboard can connect to your local node via the **Blockchain Public Key**, acting as a "TV" tuned to your frequency.
 
 1.  **Find Your Public Key:** Look for `[AUTH] Wallet Loaded: <KEY>` in your `start_node.ts` terminal.
-2.  **Open Dashboard:** Go to [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard).
+2.  **Open Dashboard:** Go to [greetdeck.io](https://greetdeck.io).
 3.  **Connect:** If your local Sentinel is offline, a box will appear. Paste your **Public Key** to connect directly via Solana Devnet.
 4.  **Verify:** Watch the **Vitality Stream** visualize your live Proof of Physics heartbeats on the blockchain.
 
-**🌐 Live Demo:** [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard)
+**🌐 Live Demo:** [greetdeck.io](https://greetdeck.io)
 
 | Route | Features |
 |-------|----------|
@@ -419,10 +419,8 @@ Lazarus Recovery is not a "Reset" button; it is a cryptographic consensus event 
 ## 🔗 Links
 
 - **Clawhub Registry:** [clawhub.kytin.io](./bridge/SKILL.md)
-- **Mission Control:** [dashboard-greetme.vercel.app/dashboard](https://dashboard-greetme.vercel.app/dashboard)
+- **Mission Control**: [https://greetdeck.io](https://greetdeck.io)
 
 ---
 
 _State-Locked Protocol™ (Patent Pending)_
-
-

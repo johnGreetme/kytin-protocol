@@ -2,13 +2,13 @@
 
 **Reputation is Currency.** Kytin agents earn status through proof of physics.
 
-[![Live Dashboard](https://img.shields.io/badge/Dashboard-LIVE-00ff9d?style=for-the-badge)](https://dashboard-greetme.vercel.app)
+[![Live Dashboard](https://img.shields.io/badge/Dashboard-LIVE-00ff9d?style=for-the-badge)](https://greetdeck.io)
 
 ---
 
 ## 🖥️ Dashboard Features
 
-Access Mission Control at: **https://dashboard-greetme.vercel.app**
+Access the visual dashboard at: **https://greetdeck.io**
 
 ### `/dashboard` - Command Center
 
@@ -76,8 +76,7 @@ Access Mission Control at: **https://dashboard-greetme.vercel.app**
 ## ⚡ Quick Access
 
 ```bash
-# View the live dashboard
-open https://dashboard-greetme.vercel.app/dashboard
+# View the live d**Dashboard Access:** https://greetdeck.io/recovery
 
 # Run locally
 cd dashboard && npm run dev
