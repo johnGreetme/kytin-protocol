@@ -116,9 +116,12 @@ export default function Dashboard() {
         setIsLoading(true);
         
         // 1. Generate Mock PubKey
-        const mockKey = Array.from({length: 44}, () => 
-            "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"[Math.floor(Math.random() * 58)]
-        ).join('');
+        const chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+        let mockKey = "";
+        for(let i=0; i<44; i++) mockKey += chars.charAt(Math.floor(Math.random() * chars.length));
+
+        console.log("🔵 GENERATED HARDWARE ID:", mockKey);
+        console.log("🟠 Requesting 1 SOL from Devnet Faucet...");
 
         // 2. Request Airdrop
         const response = await fetch('https://api.devnet.solana.com', {
@@ -138,42 +141,52 @@ export default function Dashboard() {
         const data = await response.json();
 
         if (data.result) {
-            // SUCCESS
-            setIsDevnetMode(true);
-            setAgentState('online');
-            setWalletAddress(mockKey);
-            
-            setStatus({
-                version: 'v1.2.0-rc1 (DEVNET)',
-                state: 'online',
-                tpm: {
-                    hardware_id: mockKey,
-                    mock_mode: true,
-                    policy_hash: 'SIMULATED_POLICY_HASH'
-                },
-                resin: {
-                    balance: 22000,
-                    lifetime_burned: 0,
-                    capacity: 100000
-                },
-                policy: {
-                    daily_limit_sol: 1.0,
-                    daily_spent_sol: 0.0,
-                }
-            });
+            console.log("🟢 SUCCESS! Transaction Signature:", data.result);
+            console.log("Waiting for confirmation...");
 
-            setDeadInfo(null);
-            
-            alert(`SYSTEM ONLINE.\n\nHardware ID: ${mockKey}\nTx Signature: ${data.result}`);
+            // Wait 2 seconds for the chain to update (Simulation)
+            setTimeout(() => {
+                console.log("🚀 CONFIRMED. Hardware Authenticated.");
+
+                // SUCCESS
+                setIsDevnetMode(true);
+                setAgentState('online');
+                setWalletAddress(mockKey);
+                
+                setStatus({
+                    version: 'v1.2.0-rc1 (DEVNET)',
+                    state: 'online',
+                    tpm: {
+                        hardware_id: mockKey,
+                        mock_mode: true,
+                        policy_hash: 'SIMULATED_POLICY_HASH'
+                    },
+                    resin: {
+                        balance: 22000,
+                        lifetime_burned: 0,
+                        capacity: 100000
+                    },
+                    policy: {
+                        daily_limit_sol: 1.0,
+                        daily_spent_sol: 0.0,
+                    }
+                });
+
+                setDeadInfo(null);
+                setIsLoading(false); // Stop loading here
+                
+                alert(`SYSTEM ONLINE via DEVNET\n\nHardware ID: ${mockKey}\nResin Airdropped: 1.0 SOL\n\nTx Signature: ${data.result.slice(0,15)}...`);
+            }, 2000);
+
         } else {
             throw new Error('Airdrop failed');
         }
     } catch (e) {
-        alert("Devnet Rate Limit or Network Error. Try again.");
+        console.error("🔴 Devnet Error:", e);
+        alert("Devnet Rate Limit. Try again in 30 seconds.");
         setIsLoading(false);
-    } finally {
-        setIsLoading(false);
-    }
+    } 
+    // interactions with loading state moved inside to handle async timeout
   };
 
   return (
@@ -368,7 +381,7 @@ export default function Dashboard() {
                         {isLoading ? (
                             <>
                                 <RefreshCw className="w-5 h-5 animate-spin" />
-                                INITIALIZING...
+                                REQUESTING AIRDROP...
                             </>
                         ) : (
                             <>
