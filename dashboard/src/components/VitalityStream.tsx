@@ -6,7 +6,7 @@ import { Activity, AlertTriangle, ShieldAlert } from 'lucide-react';
 
 const RPC_URL = 'https://api.devnet.solana.com';
 const WSS_URL = 'wss://api.devnet.solana.com';
-const TITAN_BURN_MIN = 10.0;
+const TITAN_BURN_MIN = 0.1;
 
 // P-wave (small up), Q (small down), R (huge up), S (huge down), T (medium up)
 const HEARTBEAT_PATTERN = [

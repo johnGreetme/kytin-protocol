@@ -235,6 +235,8 @@ export default function Dashboard() {
             <button
               onClick={fetchStatus}
               className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+              aria-label="Refresh Status"
+              title="Refresh Status"
             >
               <RefreshCw className="w-4 h-4 text-zinc-400" />
             </button>
