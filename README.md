@@ -18,6 +18,36 @@
 
 ---
 
+## 🏆 For Colosseum Judges: Quick Start
+
+**We are LIVE on Solana Devnet.** You haven't just found a repo; you've found a living hardware network.
+
+### 🚀 Option 1: The Instant Experience (Recommended)
+**Go to:** [https://greetdeck.io](https://greetdeck.io)
+
+1.  **Fire Up Mission Control:**
+    *   Click the **"Connect Wallet"** button in the top-right corner.
+    *   Watch the **Resin Tank** sync with live Devnet data. It's not a mock; the dashboard reads the on-chain state of our active Sentinels to visualize the network's liquidity.
+    *   Observe the **Heartbeat UI** in the Activity Card—a pulsing EKG confirming real-time Proof-of-Physics verification.
+
+2.  **Test the Lazarus Protocol:**
+    *   Navigate to the **Lazarus Protocol** tab (or `/recovery`).
+    *   Click **"Connect Phantom"** to initiate the demo.
+    *   Experience the full **"Soul Transfer"** workflow: scanning the blockchain for a lost identity hash and signing a recovery transaction to migrate the soul to new hardware.
+
+### 💻 Option 2: Run Locally (Devnet Mode)
+If you prefer to run the dashboard on your own machine:
+
+```bash
+git clone https://github.com/johnGreetme/kytin-protocol.git
+cd kytin-protocol/dashboard
+npm install
+npm run dev
+# Open http://localhost:3000
+```
+*The local dashboard is pre-configured to connect to our Genesis Devnet Node.*
+
+---
 
 ## 📡 The "6G" of Agent Networks
 
@@ -219,7 +249,7 @@ The dashboard can connect to your local node via the **Blockchain Public Key**, 
 
 1.  **Find Your Public Key:** Look for `[AUTH] Wallet Loaded: <KEY>` in your `start_node.ts` terminal.
 2.  **Open Dashboard:** Go to [greetdeck.io](https://greetdeck.io).
-3.  **Connect:** If your local Sentinel is offline, a box will appear. Paste your **Public Key** to connect directly via Solana Devnet.
+3.  **Connect:** Click **Connect Wallet**.
 4.  **Verify:** Watch the **Vitality Stream** visualize your live Proof of Physics heartbeats on the blockchain.
 
 **🌐 Live Demo:** [greetdeck.io](https://greetdeck.io)
