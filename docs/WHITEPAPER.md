@@ -1,118 +1,84 @@
-# Kytin: The State-Locked Protocol for Sovereign AI Agents
+# Kytin Protocol White Paper (v2.0)
+## State-Locked Protocol: Anchoring Sovereign AI to Physical Reality
 
-**Abstract**
-As AI agents become economic actors, the "Sybil Problem" threatens the network. **Kytin** introduces the **State-Locked Protocol™ (SLP)**, a patent-pending mechanism that binds an agent's state to a specific Trusted Platform Module (TPM 2.0).
-
----
-
-## 1. The Core Innovation: State-Locked Protocol™
-
-SLP fuses three elements into a sovereign identity:
-
-1.  **The Silicon Anchor:** A non-exportable key generated inside the TPM.
-2.  **The Sovereign Policy:** Firmware-level rules (e.g., Daily Spend Limit) that cannot be bypassed by the OS.
-3.  **The L1 Heartbeat:** A cryptographic proof of uptime settled on Solana.
+**Version:** 2.0  
+**Status:** Confidential / Institutional Review  
+**Author:** Chief Architect (SLP-Zero-Prime)  
+**Date:** February 2026  
 
 ---
 
-## 2. The Resin Economy (Burn-and-Mint)
+### SECTION 1: EXECUTIVE SUMMARY
 
-Kytin utilizes a **Dual-Token DePIN Model** to ensure sustainability.
+#### The "Ghost Fleet" Crisis
+The digital economy faces a systemic existential threat: the **Ghost Fleet**. As AI agents increasingly manage capital, execute trades, and govern protocols, the boundary between legitimate actors and Sybil-driven botnets has dissolved. We estimate a **$3.5 Trillion risk** in under-collateralized loans and wash-trading volumes conducted by "identity-less" software. AI agents currently lack a physical body, making them cryptographically indistinguishable from infinite software clones. 
 
-### 2.1 The Governance Asset ($KYT)
+#### The Pivot: From Silicon to Standard
+The Kytin Protocol represents a fundamental pivot in sovereign hardware. We are no longer building proprietary chips; we are building the **State-Locked Protocol™ (SLP)**. This standard leverages existing, globally audited TPM 2.0 silicon (Infineon, STMicro) to transform commodity hardware into a "Sovereign Anchor." 
 
-| Property | Description |
-|----------|-------------|
-| **Role** | Value Capture & Voting |
-| **Utility** | Staked for Tier 2/3 Status |
-| **Deflation** | Protocol fees are used to **Buy Back and Burn $KYT** |
-
-### 2.2 The Utility Fuel (Resin)
-
-| Property | Description |
-|----------|-------------|
-| **Role** | Network Gas (Stable) |
-| **Source** | Minted **only** by burning $KYT |
-
-#### Consumption Rates
-
-| Action | Resin Cost |
-|--------|------------|
-| **Eco Heartbeat (4h)** | 1 Resin |
-| **Turbo Heartbeat (1m)** | 240 Resin (High Frequency Status) |
-| **Skill Check** | 50 Resin per download |
+#### The Vision: Proof of Physics
+We introduce **Proof of Physics**. By anchoring digital identity to the immutable physical state of a secure enclave, Kytin enables **Sovereign Autonomous Finance**. Digital entities can finally prove they exist within a specific physical boundary, ensuring that an agent’s "soul" is as real—and as rare—as the silicon it inhabits.
 
 ---
 
-## 3. Security Features
+### SECTION 2: TECHNICAL ARCHITECTURE
 
-### 3.1 Malware Defense
-The Sentinel verifies the signature of every Skill against a "Trusted Developer" whitelist before loading.
+#### The Anchor: TPM 2.0 Silicon Integration
+The cornerstone of Kytin security is the generation of **Non-Exportable Keys** within the Trusted Platform Module (TPM 2.0). Utilizing the TPM's internal RNG and hardware-isolated cryptographic engines, Kytin generates an Endorsement Key (EK) and an Attestation Identity Key (AIK). Crucially, the private key material **never touches the RAM or Disk** of the host machine. It is generated in silicon, stays in silicon, and dies in silicon.
 
-### 3.2 Soul Transfer Protocol
+#### The Kytin Rust Driver (The HAL)
+To bridge the gap between low-level hardware and the Solana blockchain, we have developed the **Kytin Rust Driver**. This Hardware Abstraction Layer (HAL) serves as the secure conduit for the "State-Locked" logic. It provides a high-performance, memory-safe interface for signing transactions directly within the TPM enclave, ensuring that even a compromised Operating System cannot intercept or exfiltrate the agent's identity.
 
-When upgrading hardware, the **Parent TPM** signs a "Last Will" transaction to authorize a **Child TPM**, burning a **0.05 SOL "Reincarnation Fee."**
-
-#### The Migration Flow
-
-```mermaid
-sequenceDiagram
-    participant Old as 💀 Old Device (Parent)
-    participant New as 👶 New Device (Child)
-    participant Net as ☁️ Solana Network
-
-    Note over Old, New: User initiates 'Soul Transfer'
-    New->>New: Generate New TPM Keypair
-    New->>Old: Share Public Key (QR/Local)
-    
-    Old->>Old: 🛑 STOP Kytin Service
-    Old->>Old: Sign "MIGRATE_TO: Child_Key"
-    Old->>Net: Broadcast "Last Will" Transaction
-    
-    Net-->>New: 🟢 Authority Transferred
-    Net-->>Old: 🔴 ID Burned (410 GONE)
-    
-    Old->>Old: 🗑️ Self-Destruct Config
-    Note right of Old: Device is now Cryptographically Dead
-```
-
-> **⚠️ IRREVERSIBLE:** Once the "Last Will" is signed, the old device can NEVER sign transactions again. The TPM marks the key as expired.
-
-### 3.6 The Lazarus Protocol (Disaster Recovery)
-
-To mitigate hardware failure (e.g., motherboard destruction) where the TPM cannot sign a migration transaction, Kytin implements an Identity Abstraction Layer.
-
-1.  **Corporate Personhood:** The Agent's identity is a stable Program Derived Address (PDA) on Solana. Contracts and assets are held by the PDA, not the transient TPM key.
-2.  **Guardian Recovery:** The Agent designates an Owner Authority (e.g., a Ledger hardware wallet). In the event of catastrophic hardware failure, the Owner Authority can sign a `Force_Rotate_Key` instruction to appoint a new TPM.
-3.  **Contract Continuity:** Since DeFi interactions and Service Agreements are bound to the PDA, a key rotation does not break existing contracts. The new hardware simply resumes the "CEO" role of the Agent entity.
+#### Security: State-Locked Logic
+The protocol implements **State-Locked Logic**. Through the use of Platform Configuration Registers (PCRs), the Kytin Driver "seals" the agent's identity to the system's current firmware and boot state. If the hardware is tampered with, or if an unauthorized OS attempted to access the keys, the TPM triggers an **Anti-Tamper self-destruct mechanism**, rendering the identity keys permanently unusable. 
 
 ---
 
-*State-Locked Protocol™ is a patent-pending technology.*
+### SECTION 3: TOKENOMICS & THE "LAZARUS" MECHANIC
+
+#### The Token: $RESIN
+The Kytin ecosystem is fueled by **$RESIN**, a pure utility token. $RESIN is the "Fuel" required for an agent to maintain its existence and interact with the physical and digital world. It is not a security; it is a consumable resource that validates an agent's ongoing operational status.
+
+#### The Heartbeat
+To maintain a "Sovereign Identity," every Kytin agent must broadcast a **"Lazarus Heartbeat"** every 30 minutes. Each heartbeat requires the burning of a specific amount of $RESIN. 
+*   **Cost of Spam:** This constant burn creates a fundamental economic floor for identity. A botnet of 1 million "Ghost" agents becomes prohibitively expensive to maintain, effectively ending Sybil attacks through economic friction.
+*   **No Burn = No Identity:** If a heartbeat is missed, the agent’s reputation and identity are immediately suspended on-chain.
+
+#### The Lazarus Protocol (Death & Resurrection)
+Hardware is mortal; identity should be eternal. The Lazarus Protocol manages the "Soul Transfer" of an agent between physical hosts.
+
+1.  **The Tomb:** When a device fails or is scheduled for decommission, the identity is placed in a "Tomb" state, time-locked for **7 Epochs**.
+2.  **The Rite:** The owner (holding the Cold Storage recovery key) must submit a "Proof of Death," certifying that the original TPM is decommissioned.
+3.  **Resurrection:** Upon verification, the agent’s "Soul"—including its credit score, reputation, and historical data—is migrated to a new TPM chip. 
+
+This ensures that hardware failure does not result in the permanent loss of an agent's built-up "Sovereign Score," allowing for multi-decade autonomous entities.
 
 ---
 
-## 4. Hardware Security FAQ
+### SECTION 4: REGULATORY COMPLIANCE
 
-### Q: What is a side-channel attack, and why does it matter for AI agents?
-**A:** Unlike traditional hacks that target mathematical weaknesses in code, a side-channel attack exploits physical information leaks from the hardware itself. Attackers may monitor power consumption, electromagnetic radiation, or even the precise time it takes for a chip to sign a transaction to deduce secret keys bit by bit. For an autonomous AI agent, a successful side-channel attack means its unique identity could be cloned, allowing an attacker to impersonate the "Shell".
+#### KYM: Know Your Machine
+For the Financial Conduct Authority (FCA) and global regulators, Kytin introduces **Know Your Machine (KYM)**. Unlike traditional KYC, which relies on easily forged documents, KYM provides a mathematical audit trail of the physical origin of every trade. Regulators can verify that a transaction originated from a specific, certified TPM model, ensuring it was not produced by an unauthorized bot farm.
 
-### Q: How does the Kytin TPM 2.0 protect against these physical leaks?
-**A:** The Kytin Protocol leverages **Discrete TPMs (dTPMs)**, which are dedicated, tamper-resistant semiconductor packages with higher physical security certification (e.g., FIPS-140 Level 3) than software-based alternatives.
+#### Non-Repudiation
+Kytin provides **Absolute Non-Repudiation**. Because the keys cannot be exported or cloned, it is mathematically impossible for an owner to claim "I was hacked" or "The software acted on its own" as an excuse for fraudulent activity. If the TPM signed it, the machine did it. This moves accountability from intent to physics.
 
-- **Constant-Time Cryptography:** Kytin-compliant TPMs are designed to perform operations like signing heartbeats with secret-independent execution times, mitigating timing analysis.
-- **Masking and Blinding:** The hardware applies internal "noise" or masking to its internal operations, ensuring that power usage patterns do not correlate directly with the secret keys.
-- **Shielded Locations:** Keys exist only within Shielded Locations on the chip; they are never disclosed to the operating system, protecting them even if the agent's software environment is fully compromised.
+#### Systemic Stability
+By tying agents to the constraints of the physical supply chain, Kytin prevents "Flash Crashes" caused by infinite software replication. The market is protected by the physical reality of chip production; the number of high-frequency agents is capped by the number of certified TPMs in existence, providing a natural "circuit breaker" for the global financial system.
 
-### Q: Can a human "brute-force" the Kytin hardware?
-**A:** No. TPM 2.0 includes anti-hammering protection designed specifically to prevent brute-force and dictionary attacks.
+---
 
-- **Lockout Logic:** If a local attacker attempts to authorize a key with incorrect values too many times, the TPM enters a global lockout state.
-- **Time-Gated Recovery:** The TPM is configured to "forget" failures slowly (e.g., one failure every 10 minutes), making rapid-fire guessing mathematically impossible.
+### SECTION 5: MARKET STRATEGY & USE CASES
 
-### Q: Is the Kytin "Shell" vulnerable to bus-sniffing?
-**A:** Standard TPM communications over SPI/LPC buses can be vulnerable to signal "sniffing". To defend against this, Kytin recommends:
+#### DePIN: Eliminating Emulators
+Decentralized Physical Infrastructure Networks (Helium, Render) are currently plagued by emulators—software pretending to be hardware to farm rewards. Kytin’s **Proof of Physics** provides a 100% effective countermeasure. If a node cannot provide a Kytin-signed hardware attestation, it is denied entry to the network.
 
-- **Parameter Encryption:** Enabling encrypted communication between the CPU and the TPM to prevent cleartext keys from being captured by logic analyzers.
-- **Sealing with PCRs:** Binding (sealing) keys to specific hardware measurements (Platform Configuration Registers). If the system detects any unauthorized hardware changes, the TPM refuses to release the "Titan" signing keys.
+#### Smart Cities: The Truth Engine
+In modern Smart Cities, "Garbage In = Garbage Out." Data from IoT sensors (traffic, pollution, power) is often unverified. Kytin-enabled IoT dashboards provide **"Verified Data"** pilots for City Command Centers, ensuring that every data point is signed by a physical device at the source, preventing data manipulation at the edge.
 
+#### Autonomous Finance: The Lazarus Score
+The ultimate use case is transition to undercollateralized lending for AI agents. An agent’s **"Lazarus Score"** (a composite of uptime history, heartbeat consistency, and successful resurrections) allows it to access credit. Just as humans use credit scores, Kytin agents use their physical reliability history to prove they are "good for the money," enabling the first true machine-to-machine credit markets.
+
+---
+
+*State-Locked Protocol™ and Proof of Physics™ are patent-pending technologies by the Kytin Protocol Foundation.*
