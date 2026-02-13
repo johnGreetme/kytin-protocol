@@ -157,7 +157,7 @@ Ensure your host configuration matches this schema:
 * The old TPM key is **blacklisted forever**.
 * Only the `recovery_wallet` can trigger this—not the (dead) TPM.
 
-**Dashboard Access:** https://dashboard-greetme.vercel.app/recovery
+**Dashboard Access:** https://greetdeck.io/recovery
 
 ---
 
